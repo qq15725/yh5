@@ -1,0 +1,13 @@
+.draggable {
+  border: 1px solid transparent;
+  user-select: none;
+  &:hover {
+    border: 1px solid #DDDDDD;
+    cursor: move;
+  }
+}
+
+.dragging {
+  border: 1px solid #DDDDDD;
+  z-index: 999;
+}

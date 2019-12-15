@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": "lerna run build --scope yh5 --stream",
+    "docs:serve": "lerna run serve --scope yh5.com --stream",
+    "docs:build": "lerna run build --scope yh5.com --stream"
+  },
+  "devDependencies": {
+    "lerna": "^3.15.0"
+  }
+}

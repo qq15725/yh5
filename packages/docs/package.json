@@ -1,0 +1,18 @@
+{
+  "name": "yh5.com",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "serve": "vuepress dev .",
+    "build": "vuepress build ."
+  },
+  "dependencies": {
+    "vue-awesome-swiper": "^3.1.3",
+    "yh5": "^0.0.1"
+  },
+  "devDependencies": {
+    "sass": "^1.22.10",
+    "sass-loader": "^7.3.1",
+    "vuepress": "^1.2.0"
+  }
+}

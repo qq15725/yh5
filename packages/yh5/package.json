@@ -1,0 +1,51 @@
+{
+  "name": "yh5",
+  "description": "yh5",
+  "version": "0.0.1",
+  "author": {
+    "name": "weng",
+    "email": "157215725@qq.com"
+  },
+  "main": "lib/yh5.js",
+  "module": "lib/yh5.js",
+  "files": [
+    "src/",
+    "lib/"
+  ],
+  "scripts": {
+    "build": "node build/build-lib.js"
+  },
+  "keywords": [
+    "yh5"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qq15725/yh5.git",
+    "directory": "packages/yh5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "autoprefixer": "^9.6.1",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-detective": "^2.0.0",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "babel-plugin-transform-define": "^1.3.1",
+    "babel-polyfill": "^6.26.0",
+    "cross-env": "^5.2.0",
+    "fibers": "^4.0.1",
+    "shelljs": "^0.8.3"
+  },
+  "peerDependencies": {
+    "vue": "^2.6.10",
+    "vue-awesome-swiper": "^3.1.3"
+  },
+  "sideEffects": [
+    "*.sass",
+    "*.scss",
+    "*.css"
+  ]
+}

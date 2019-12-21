@@ -6,8 +6,8 @@
     "name": "weng",
     "email": "157215725@qq.com"
   },
-  "main": "lib/yh5.js",
-  "module": "lib/yh5.js",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
   "files": [
     "src/",
     "lib/"

@@ -1,8 +1,28 @@
 .v-h5-render {
   position: relative;
-  overflow: hidden;
   width: 100%;
   height: 100%;
   margin-left: auto;
   margin-right: auto;
+
+  &__wrapper {
+    position: absolute;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  &__hover {
+    position: absolute;
+    border: 1px solid #6ccfff;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &__draggable-and-resizable {
+    z-index: 5;
+  }
 }

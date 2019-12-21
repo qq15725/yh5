@@ -1,19 +1,28 @@
 <template>
-  <v-h5-render
-    :value="data"
-    :width="375"
-    :height="674"
-    :reference-width="375"
-    :reference-height="674"
-    draggable
+  <div
+    @click="onClick"
   >
-  </v-h5-render>
+    <v-h5-render
+      v-model="data"
+      :selected-index.sync="selectedIndex"
+      :width="375"
+      :height="674"
+      :reference-width="375"
+      :reference-height="674"
+      editable
+    >
+    </v-h5-render>
+  </div>
 </template>
 
 <script>
+  // 动画
+  import 'animate.css'
+
   export default {
     data () {
       return {
+        selectedIndex: null,
         data: [
           {
             tag: 'img',
@@ -22,6 +31,7 @@
             left: 0,
             width: 375,
             height: 674,
+            class: 'xxx'
           },
           {
             tag: 'img',
@@ -145,6 +155,12 @@
             enterActiveClass: 'animated fadeIn slow',
           },
         ]
+      }
+    },
+
+    methods: {
+      onClick () {
+        this.selectedIndex = null
       }
     }
   }

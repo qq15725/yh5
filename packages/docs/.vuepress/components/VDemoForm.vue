@@ -9,7 +9,9 @@
 </template>
 
 <script>
-  export default {}
+  export default {
+    name: 'v-demo-form'
+  }
 </script>
 
 <style scoped>

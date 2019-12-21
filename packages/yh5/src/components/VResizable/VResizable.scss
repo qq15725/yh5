@@ -1,0 +1,129 @@
+.v-resizable {
+  position: relative;
+  box-sizing: border-box;
+
+  &:not(.v-resizable--disabled):before {
+    content: "";
+    box-sizing: initial;
+    border: 2px solid #6CCFFF;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: -2px 0 0 -2px;
+  }
+
+  &--resizing:not(.v-resizable--disabled):before {
+    border-width: 1px;
+    border-color: rgba(108, 207, 255, .3);
+    margin: -1px 0 0 -1px;
+  }
+
+  &__grip {
+    padding: 11px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+    transition: opacity .3s;
+
+    &--hide {
+      opacity: 0;
+    }
+
+    &:before {
+      content: '';
+      box-sizing: border-box;
+      display: block;
+      background: #FFF;
+      border: 1px solid #C0C5CF;
+      box-shadow: 0 0 2px 0 rgba(86, 90, 98, .2);
+      border-radius: 6px;
+    }
+
+    &--n {
+      cursor: ns-resize;
+      left: 50%;
+      margin-top: -1px;
+    }
+
+    &--nw {
+      cursor: nwse-resize;
+      margin-left: -1px;
+      margin-top: -1px;
+    }
+
+    &--w {
+      cursor: ew-resize;
+      top: 50%;
+      left: 0;
+      margin-left: -1px;
+    }
+
+    &--sw {
+      cursor: nesw-resize;
+      top: 100%;
+      margin-left: -1px;
+      margin-top: 1px;
+    }
+
+    &--s {
+      cursor: ns-resize;
+      left: 50%;
+      top: 100%;
+      margin-top: 1px;
+    }
+
+    &--ne {
+      cursor: nesw-resize;
+      left: 100%;
+      margin-top: -1px;
+      margin-left: 1px;
+    }
+
+    &--e {
+      cursor: ew-resize;
+      left: 100%;
+      top: 50%;
+      margin-left: 1px;
+    }
+
+    &--se {
+      cursor: nwse-resize;
+      left: 100%;
+      top: 100%;
+      margin-left: 1px;
+      margin-top: 1px;
+    }
+
+    &--e,
+    &--w {
+      &:before {
+        height: 16px;
+        width: 7px;
+      }
+    }
+
+    &--n,
+    &--s {
+      &:before {
+        width: 16px;
+        height: 7px;
+      }
+    }
+
+    &--sw,
+    &--nw,
+    &--ne,
+    &--se {
+      &:before {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+    }
+  }
+}
+

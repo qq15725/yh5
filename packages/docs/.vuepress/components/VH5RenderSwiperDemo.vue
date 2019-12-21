@@ -11,6 +11,9 @@
 </template>
 
 <script>
+  // 动画
+  import 'animate.css'
+
   import VDemoForm from './VDemoForm'
 
   export default {

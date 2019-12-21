@@ -1,2 +1,5 @@
 export * from './VH5Render'
 export * from './VH5RenderSwiper'
+export * from './VDraggable'
+export * from './VResizable'
+export * from './VDraggableAndResizable'

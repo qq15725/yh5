@@ -15,10 +15,12 @@
   import 'animate.css'
 
   import VDemoForm from './VDemoForm'
+  import { VH5RenderSwiper } from 'yh5/src'
 
   export default {
     components: {
-      VDemoForm
+      VH5RenderSwiper,
+      VDemoForm,
     },
 
     data () {

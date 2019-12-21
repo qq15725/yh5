@@ -13,7 +13,12 @@
 </template>
 
 <script>
+  import { VDraggable } from 'yh5/src'
+
   export default {
+    components: {
+      VDraggable
+    },
     data () {
       return {
         value: {

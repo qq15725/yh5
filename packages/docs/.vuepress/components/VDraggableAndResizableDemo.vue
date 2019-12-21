@@ -13,7 +13,12 @@
 </template>
 
 <script>
+  import { VDraggableAndResizable } from 'yh5/src'
+
   export default {
+    components: {
+      VDraggableAndResizable
+    },
     data () {
       return {
         value: {

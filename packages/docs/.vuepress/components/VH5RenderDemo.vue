@@ -19,7 +19,13 @@
   // 动画
   import 'animate.css'
 
+  import { VH5Render } from 'yh5/src'
+
   export default {
+    components: {
+      VH5Render
+    },
+
     data () {
       return {
         selectedIndex: null,

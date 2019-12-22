@@ -2,7 +2,7 @@
   <div
     @click="onClick"
   >
-    <v-h5-render
+    <v-canvas
       v-model="data"
       :selected-index.sync="selectedIndex"
       :width="375"
@@ -11,7 +11,7 @@
       :reference-height="674"
       editable
     >
-    </v-h5-render>
+    </v-canvas>
   </div>
 </template>
 
@@ -19,11 +19,11 @@
   // 动画
   import 'animate.css'
 
-  import { VH5Render } from 'yh5/src'
+  import { VCanvas } from 'yh5/src'
 
   export default {
     components: {
-      VH5Render
+      VCanvas
     },
 
     data () {
@@ -37,7 +37,6 @@
             left: 0,
             width: 375,
             height: 674,
-            class: 'xxx'
           },
           {
             tag: 'img',

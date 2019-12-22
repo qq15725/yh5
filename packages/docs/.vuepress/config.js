@@ -21,8 +21,8 @@ module.exports = {
         {
           title: '组件',
           children: [
-            ['components/v-h5-render', 'VH5Render（渲染器）'],
-            ['components/v-h5-render-swiper', 'VH5RenderSwiper（渲染器swiper）'],
+            ['components/v-canvas', 'VCanvas（画布）'],
+            ['components/v-swiper', 'VSwiper（VSwiper）'],
             ['components/v-draggable', 'VDraggable（可拖拽）'],
             ['components/v-resizable', 'VResizable（可调整大小）'],
             ['components/v-draggable-and-resizable', 'VDraggableAndResizable（可拖拽调整大小）'],

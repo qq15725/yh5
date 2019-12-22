@@ -1,5 +1,5 @@
 <template>
-  <v-h5-render-swiper
+  <v-swiper
     :options="options"
     :value="data"
     :width="375"
@@ -7,7 +7,7 @@
     :reference-width="375"
     :reference-height="674"
   >
-  </v-h5-render-swiper>
+  </v-swiper>
 </template>
 
 <script>
@@ -15,11 +15,11 @@
   import 'animate.css'
 
   import VDemoForm from './VDemoForm'
-  import { VH5RenderSwiper } from 'yh5/src'
+  import { VSwiper } from 'yh5/src'
 
   export default {
     components: {
-      VH5RenderSwiper,
+      VSwiper,
       VDemoForm,
     },
 

@@ -1,11 +1,11 @@
-import './VH5Render.scss'
+import './VCanvas.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
-import { convertToUnit } from '../../util/helpers'
+import { convertToUnit, isNumber } from '../../util/helpers'
 
 // Components
-import VH5RenderItem from './VH5RenderItem'
+import VElement from '../VElement'
 import VDraggableAndResizable from '../VDraggableAndResizable'
 
 // Mixins
@@ -21,7 +21,7 @@ const baseMixins = mixins(
 export default baseMixins.extend({
   inheritAttrs: false,
 
-  name: 'v-h5-render',
+  name: 'v-canvas',
 
   directives: { resize },
 
@@ -32,6 +32,8 @@ export default baseMixins.extend({
       default: null,
     },
     editable: Boolean,
+    referenceWidth: Number,
+    referenceHeight: Number,
   },
 
   watch: {
@@ -48,6 +50,20 @@ export default baseMixins.extend({
         offsetWidth: null,
         offsetHeight: null,
       },
+      xFields: [
+        'left',
+        'right',
+        'width',
+        'maxWidth',
+        'minWidth'
+      ],
+      yFields: [
+        'top',
+        'bottom',
+        'height',
+        'maxHeight',
+        'minHeight',
+      ],
     }
   },
 
@@ -70,27 +86,50 @@ export default baseMixins.extend({
   },
 
   methods: {
-    genItem (item) {
-      let { children, on, ...attrs } = item
+    convertToAspectRatio (value, isX = null) {
+      if (isX !== null && value && isNumber(value)) {
+        if (isX && this.resizeWrapper.offsetWidth && this.referenceWidth) {
+          value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
+        }
+        if (!isX && this.resizeWrapper.offsetHeight && this.referenceHeight) {
+          value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
+        }
+      }
+      return value
+    },
+    genElement (item) {
+      let { children, on, style, class: _class, ...attrs } = item
+
+      this.xFields.forEach(key => {
+        if (attrs[key] !== undefined) {
+          attrs[key] = this.convertToAspectRatio(attrs[key], true)
+        }
+      })
+
+      this.yFields.forEach(key => {
+        if (attrs[key] !== undefined) {
+          attrs[key] = this.convertToAspectRatio(attrs[key], false)
+        }
+      })
 
       if (Array.isArray(children)) {
-        children = children.map(this.genItem)
+        children = children.map(this.genElement)
       }
 
-      return this.$createElement(VH5RenderItem, {
+      return this.$createElement(VElement, {
+        class: _class,
+        style,
         attrs,
         props: {
-          referenceWidth: this.referenceWidth,
-          referenceHeight: this.referenceHeight,
-          offsetWidth: this.resizeWrapper.offsetWidth,
-          offsetHeight: this.resizeWrapper.offsetHeight,
+          appear: true,
+          absolute: true,
         },
         on,
       }, children)
     },
-    genHovered () {
+    genHover () {
       return this.$createElement('div', {
-        staticClass: 'v-h5-render__hover',
+        staticClass: 'v-canvas__hovered',
         style: {
           top: convertToUnit(this.hovered.top),
           left: convertToUnit(this.hovered.left),
@@ -99,12 +138,12 @@ export default baseMixins.extend({
         }
       })
     },
-    genDraggableAndResizable () {
+    genElementController () {
       return this.$createElement(VDraggableAndResizable, {
-        staticClass: 'v-h5-render__draggable-and-resizable',
+        staticClass: 'v-canvas__element-controller',
         props: {
           value: {
-            top: this.selected.top || 0,
+            top: this.selected.top,
             left: this.selected.left,
             width: this.selected.width,
             height: this.selected.height,
@@ -125,7 +164,7 @@ export default baseMixins.extend({
 
   render (h) {
     return h('div', {
-      staticClass: 'v-h5-render',
+      staticClass: 'v-canvas',
       style: this.measurableStyles,
       directives: [{
         name: 'resize',
@@ -136,10 +175,10 @@ export default baseMixins.extend({
       }],
     }, [
       h('div', {
-        staticClass: 'v-h5-render__wrapper'
+        staticClass: 'v-canvas__wrapper'
       }, [
         this.value.map((item, index) => {
-          const element = this.genItem(item)
+          const element = this.genElement(item)
           if (element && this.editable) {
             element.data.on = element.data.on || {}
             this._g(element.data, {
@@ -155,10 +194,10 @@ export default baseMixins.extend({
           return element
         })
       ]),
-      this.internalSelectedIndex !== null && h('div', [
-        this.genDraggableAndResizable()
-      ]),
-      this.hoverIndex !== null && this.internalSelectedIndex !== this.hoverIndex && this.genHovered(),
+      this.internalSelectedIndex !== null && this.genElementController(),
+      this.hoverIndex !== null
+      && this.internalSelectedIndex !== this.hoverIndex
+      && this.genHover(),
     ])
   }
 })

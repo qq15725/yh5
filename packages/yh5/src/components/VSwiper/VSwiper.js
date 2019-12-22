@@ -6,7 +6,7 @@ import { swiper as VSwiper, swiperSlide as VSwiperSlide } from 'vue-awesome-swip
 import mixins from '../../util/mixins'
 
 // Components
-import VH5Render from '../VH5Render'
+import VCanvas from '../VCanvas'
 
 // Mixins
 import Measurable from '../../mixins/measurable'
@@ -18,7 +18,7 @@ const baseMixins = mixins(
 export default baseMixins.extend({
   inheritAttrs: false,
 
-  name: 'v-h5-render-swiper',
+  name: 'v-swiper',
 
   props: {
     value: Array,
@@ -86,7 +86,7 @@ export default baseMixins.extend({
 
     return this.$createElement(VSwiper, {
       ref: 'theSwiper',
-      staticClass: 'v-h5-render-swiper',
+      staticClass: 'v-swiper',
       style: this.measurableStyles,
       props: {
         options
@@ -94,9 +94,9 @@ export default baseMixins.extend({
     }, [
       this.value.map(({ ...attrs }, index) => {
         return h(VSwiperSlide, {
-          staticClass: 'v-h5-render-swiper__slide',
+          staticClass: 'v-swiper__slide',
         }, [
-          this.activatedIndexs.indexOf(index) > -1 && h(VH5Render, {
+          this.activatedIndexs.indexOf(index) > -1 && h(VCanvas, {
             attrs,
             props: {
               referenceWidth: this.referenceWidth,

@@ -4,6 +4,18 @@
   height: 100%;
   margin-left: auto;
   margin-right: auto;
+  user-select: none;
+
+  &__background {
+    position: absolute;
+    background-position: center center;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 0;
+  }
 
   &__wrapper {
     position: absolute;
@@ -17,7 +29,7 @@
 
   &__hovered {
     position: absolute;
-    border: 1px solid #6ccfff;
+    border: 1px solid #6CCFFF;
     z-index: 2;
     pointer-events: none;
   }

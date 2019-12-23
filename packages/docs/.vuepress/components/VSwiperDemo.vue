@@ -6,6 +6,7 @@
     :height="674"
     :reference-width="375"
     :reference-height="674"
+    ref="VSwiper"
   >
   </v-swiper>
 </template>
@@ -26,21 +27,15 @@
     data () {
       return {
         options: {
-          direction: 'vertical'
+          direction: 'vertical',
+          effect: 'coverflow'
+          // noSwiping: true,
+          // noSwipingSelector: '.v-swiper__slide',
         },
         data: [
           {
-            class: 'xxxxxxxxxx',
-            style: 'background: #000;',
+            background: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
             value: [
-              {
-                tag: 'img',
-                src: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
-                top: 0,
-                left: 0,
-                width: 375,
-                height: 674,
-              },
               {
                 tag: 'img',
                 src: require('../assets/FtU_ut-TVuxydRE_R4MCgw0Ab-RE.png'),
@@ -48,8 +43,7 @@
                 left: (375 - 31 * 1.2) / 2,
                 width: 31 * 1.2,
                 height: 31 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -65,8 +59,7 @@
                 width: 375,
                 height: 22,
                 children: '数字营销与电商创新国际峰会',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -80,8 +73,7 @@
                 width: 375,
                 height: 22,
                 children: '搭建私域流量  玩转社群营销',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -89,8 +81,7 @@
                 left: 0,
                 width: 375,
                 height: 32.5 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated delay-1s slideInLeft slow',
+                class: 'animated delay-1s slideInLeft slow',
                 children: [
                   {
                     tag: 'img',
@@ -108,8 +99,7 @@
                 left: 0,
                 width: 375,
                 height: 19 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated delay-1s slideInRight slow',
+                class: 'animated delay-1s slideInRight slow',
                 children: [
                   {
                     tag: 'img',
@@ -128,8 +118,7 @@
                 left: (375 - 34.5) / 2,
                 width: 34.5 * 1.2,
                 height: 31 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -144,8 +133,7 @@
                 width: 375,
                 height: 22,
                 children: '2020年2月20日 | 尼罗河大酒店',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -159,21 +147,13 @@
                 width: 375,
                 height: 22,
                 children: '中国 · 广州',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
             ],
           },
           {
+            background: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
             value: [
-              {
-                tag: 'img',
-                src: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
-                top: 0,
-                left: 0,
-                width: 375,
-                height: 674,
-              },
               {
                 tag: 'img',
                 src: require('../assets/o_1dr89oma6nrm130lam14o6ji19.png'),
@@ -184,8 +164,7 @@
                 left: 28 * 1.2,
                 width: 264 * 1.2,
                 height: 420 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'img',
@@ -194,8 +173,7 @@
                 left: (375 - 188 * 1.2) / 2,
                 width: 188 * 1.2,
                 height: 22,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -211,8 +189,7 @@
                 width: 375,
                 height: 22,
                 children: '参 会 报 名',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'v-demo-form',
@@ -220,8 +197,7 @@
                 left: 40 * 1.2,
                 width: 240 * 1.2,
                 height: 340 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated delay-1s fadeIn slow',
+                class: 'animated delay-1s fadeIn slow',
               },
               {
                 tag: 'img',
@@ -230,8 +206,7 @@
                 left: (375 - 205.5) / 2,
                 width: 205.5,
                 height: 19,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'img',
@@ -240,8 +215,7 @@
                 left: (375 - 34.5) / 2,
                 width: 34.5 * 1.2,
                 height: 31 * 1.2,
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -256,8 +230,7 @@
                 width: 375,
                 height: 22,
                 children: '地址：北京明德宾舍新世界中心',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
               {
                 tag: 'div',
@@ -271,8 +244,7 @@
                 width: 375,
                 height: 22,
                 children: '电话：400-9999-9988',
-                transition: 'custom-classes-transition',
-                enterActiveClass: 'animated fadeIn slow',
+                class: 'animated fadeIn slow',
               },
             ],
           },

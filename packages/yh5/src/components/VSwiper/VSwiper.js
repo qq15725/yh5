@@ -1,12 +1,12 @@
+// Styles
 import 'swiper/dist/css/swiper.css'
-
-import { swiper as VSwiper, swiperSlide as VSwiperSlide } from 'vue-awesome-swiper'
 
 // Helpers
 import mixins from '../../util/mixins'
 
 // Components
 import VCanvas from '../VCanvas'
+import { swiper as VSwiper, swiperSlide as VSwiperSlide } from 'vue-awesome-swiper'
 
 // Mixins
 import Measurable from '../../mixins/measurable'
@@ -31,20 +31,39 @@ export default baseMixins.extend({
       type: Number,
       default: 667
     },
+    loadedSlideIndexes: {
+      type: Array,
+      default: () => ([0])
+    },
+    disableSlideReload: Boolean
   },
 
   data () {
     return {
-      activeIndex: 0,
-      activatedIndexs: [0],
       touchStartY: 0,
       touchMoveY: 0,
+      lazyIndexes: this.loadedSlideIndexes,
     }
   },
 
+  watch: {
+    loadedSlideIndexes (val) {
+      this.lazyIndexes = val
+    },
+  },
+
   computed: {
+    internalIndexes: {
+      get () {
+        return this.lazyIndexes
+      },
+      set (val) {
+        this.lazyIndexes = val
+        this.$emit('update:active-indexes', val)
+      },
+    },
     swiper () {
-      return this.$refs.theSwiper.swiper
+      return this.$refs.VSwiper.swiper
     }
   },
 
@@ -56,21 +75,47 @@ export default baseMixins.extend({
       this.touchMoveY = event.clientY
       let index
       if (this.touchMoveY - this.touchStartY > 0) {
-        index = this.activeIndex - 1
+        index = this.swiper.activeIndex - 1
       } else {
-        index = this.activeIndex + 1
+        index = this.swiper.activeIndex + 1
       }
-      if (index >= 0
-        && index < this.value.length
-        && this.activatedIndexs.indexOf(index) === -1) {
-        this.activatedIndexs.push(index)
+      if (index >= 0 && index < this.value.length && this.internalIndexes.indexOf(index) === -1) {
+        if (this.disableSlideReload) {
+          this.internalIndexes.push(index)
+        } else {
+          this.internalIndexes = [
+            this.swiper.activeIndex,
+            index
+          ]
+        }
       }
     },
-    slideChange () {
-      this.activeIndex = this.swiper.activeIndex
-      if (this.activatedIndexs.indexOf(this.activeIndex) === -1) {
-        this.activatedIndexs.push(this.activeIndex)
+    slideChangeTransitionEnd () {
+      if (!this.disableSlideReload) {
+        this.internalIndexes = [
+          this.swiper.activeIndex
+        ]
       }
+    },
+    genContent () {
+      return this.value.map(({ background, on, style, class: _class, ...attrs }, index) => {
+        return this.$createElement(VSwiperSlide, {
+          staticClass: 'v-swiper__slide',
+        }, [
+          this.$createElement(VCanvas, {
+            class: _class,
+            style,
+            attrs,
+            props: {
+              referenceWidth: this.referenceWidth,
+              referenceHeight: this.referenceHeight,
+              background,
+              hideElements: this.internalIndexes.indexOf(index) === -1,
+            },
+            on,
+          })
+        ])
+      })
     }
   },
 
@@ -80,31 +125,20 @@ export default baseMixins.extend({
     options.on = {
       touchStart: this.touchStart,
       touchMove: this.touchMove,
-      slideChange: this.slideChange,
-      ...(options.on || {})
+      slideChangeTransitionEnd: this.slideChangeTransitionEnd,
+      ...(options.on || {}),
     }
 
-    return this.$createElement(VSwiper, {
-      ref: 'theSwiper',
+    return h(VSwiper, {
+      ref: 'VSwiper',
       staticClass: 'v-swiper',
       style: this.measurableStyles,
       props: {
-        options
-      }
+        options,
+      },
     }, [
-      this.value.map(({ ...attrs }, index) => {
-        return h(VSwiperSlide, {
-          staticClass: 'v-swiper__slide',
-        }, [
-          this.activatedIndexs.indexOf(index) > -1 && h(VCanvas, {
-            attrs,
-            props: {
-              referenceWidth: this.referenceWidth,
-              referenceHeight: this.referenceHeight,
-            }
-          })
-        ])
-      })
+      this.genContent(),
+      this.$slots.default
     ])
   }
 })

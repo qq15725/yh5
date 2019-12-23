@@ -34,6 +34,8 @@ export default baseMixins.extend({
     editable: Boolean,
     referenceWidth: Number,
     referenceHeight: Number,
+    background: String,
+    hideElements: Boolean
   },
 
   watch: {
@@ -97,6 +99,14 @@ export default baseMixins.extend({
       }
       return value
     },
+    genBackground () {
+      return this.$createElement('div', {
+        staticClass: 'v-canvas__background',
+        style: {
+          backgroundImage: `url(${this.background})`
+        },
+      })
+    },
     genElement (item) {
       let { children, on, style, class: _class, ...attrs } = item
 
@@ -126,6 +136,24 @@ export default baseMixins.extend({
         },
         on,
       }, children)
+    },
+    genElements () {
+      return this.value.map((item, index) => {
+        const element = this.genElement(item)
+        if (element && this.editable) {
+          element.data.on = element.data.on || {}
+          this._g(element.data, {
+            click: event => {
+              this.internalSelectedIndex = index
+              event.preventDefault()
+              event.stopPropagation()
+            },
+            mouseenter: () => this.hoverIndex = index,
+            mouseleave: () => this.hoverIndex = null,
+          })
+        }
+        return element
+      })
     },
     genHover () {
       return this.$createElement('div', {
@@ -174,25 +202,12 @@ export default baseMixins.extend({
         },
       }],
     }, [
+      this.background && this.genBackground(),
       h('div', {
         staticClass: 'v-canvas__wrapper'
       }, [
-        this.value.map((item, index) => {
-          const element = this.genElement(item)
-          if (element && this.editable) {
-            element.data.on = element.data.on || {}
-            this._g(element.data, {
-              click: event => {
-                this.internalSelectedIndex = index
-                event.preventDefault()
-                event.stopPropagation()
-              },
-              mouseenter: () => this.hoverIndex = index,
-              mouseleave: () => this.hoverIndex = null,
-            })
-          }
-          return element
-        })
+        !this.hideElements && this.genElements(),
+        this.$slots.default,
       ]),
       this.internalSelectedIndex !== null && this.genElementController(),
       this.hoverIndex !== null

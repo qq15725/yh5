@@ -136,6 +136,8 @@ export default baseMixins.extend({
       props: {
         options,
       },
+      on: this.$listeners,
+      scopedSlots: this.$scopedSlots,
     }, [
       this.genContent(),
       this.$slots.default

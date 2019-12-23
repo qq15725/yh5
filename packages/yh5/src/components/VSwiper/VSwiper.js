@@ -137,7 +137,9 @@ export default baseMixins.extend({
         options,
       },
       on: this.$listeners,
-      scopedSlots: this.$scopedSlots,
+      scopedSlots: {
+        pagination: this.$scopedSlots.pagination,
+      },
     }, [
       this.genContent(),
       this.$slots.default

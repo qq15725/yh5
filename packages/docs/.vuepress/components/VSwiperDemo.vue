@@ -8,6 +8,16 @@
     :reference-height="674"
     ref="VSwiper"
   >
+    <template #pagination>
+      <div
+        class="music-button animated rotating infinite"
+        :style="{ animationPlayState: paused ? 'paused' : '' }"
+        @click="paused = !paused"
+      >
+      </div>
+
+      <div class="up-arrow animated arrow-move slow infinite"/>
+    </template>
   </v-swiper>
 </template>
 
@@ -26,6 +36,7 @@
 
     data () {
       return {
+        paused: false,
         options: {
           direction: 'vertical',
           effect: 'coverflow'
@@ -253,3 +264,65 @@
     }
   }
 </script>
+
+<style scoped>
+  .music-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 30px;
+    height: 30px;
+    z-index: 10;
+    border-radius: 15px;
+    background-image: url(../assets/music-button.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  .up-arrow {
+    position: absolute;
+    width: 24px;
+    height: 18px;
+    bottom: 20px;
+    left: calc(50% - 12px);
+    z-index: 10;
+    background-image: url(../assets/up-arrow.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  .rotating {
+    animation-name: rotating;
+    animation-timing-function: linear;
+  }
+
+  @keyframes rotating {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .arrow-move {
+    animation-name: arrow-move;
+  }
+
+  @keyframes arrow-move {
+    0% {
+      bottom: 10px;
+      opacity: 0;
+    }
+
+    50% {
+      bottom: 15px;
+      opacity: 1;
+    }
+    100% {
+      bottom: 20px;
+      opacity: 0;
+    }
+  }
+</style>

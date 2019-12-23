@@ -32,6 +32,14 @@ export default baseMixins.extend({
       default: null,
     },
     editable: Boolean,
+    appear: {
+      type: Boolean,
+      default: true
+    },
+    absolute: {
+      type: Boolean,
+      default: true
+    },
     referenceWidth: Number,
     referenceHeight: Number,
     background: String,
@@ -131,8 +139,8 @@ export default baseMixins.extend({
         style,
         attrs,
         props: {
-          appear: true,
-          absolute: true,
+          appear: this.appear,
+          absolute: this.absolute,
         },
         on,
       }, children)

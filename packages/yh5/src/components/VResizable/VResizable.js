@@ -15,6 +15,8 @@ const baseMixins = mixins(
   VDraggable
 )
 
+export const defaultPoints = ['t', 'tl', 'l', 'b', 'bl', 'tr', 'r', 'br']
+
 export default baseMixins.extend({
   name: 'v-resizable',
 
@@ -26,23 +28,27 @@ export default baseMixins.extend({
         height: 0
       }),
     },
-    minWidth: {
+    absolute: Boolean,
+    cursor: Boolean,
+    minWidth: [String, Number],
+    maxWidth: [String, Number],
+    minHeight: [String, Number],
+    maxHeight: [String, Number],
+    hideGripBreakpoint: {
       type: [String, Number],
-      default: 10,
-    },
-    minHeight: {
-      type: [String, Number],
-      default: 10,
-    },
-    breakpoint: {
-      type: Number,
       default: 50
     },
+    points: {
+      type: Array,
+      default: () => defaultPoints,
+      validator: val => new Set(val.filter(h => new Set(defaultPoints).has(h))).size === val.length
+    },
+    aspectRatio: [String, Number],
   },
 
   data () {
     return {
-      direction: null,
+      point: null,
     }
   },
 
@@ -50,10 +56,24 @@ export default baseMixins.extend({
     classes () {
       return {
         'v-resizable--disabled': this.disabled,
-        'v-resizable--resizing': this.direction !== null,
+        'v-resizable--resizing': this.point !== null,
       }
     },
     styles () {
+      let style = {}
+
+      let width = convertToUnit(this.internalValue.width)
+      let height = convertToUnit(this.internalValue.height)
+
+      if (this.absolute) style.position = 'absolute'
+      if (this.fixed) style.position = 'fixed'
+      if (!this.disabled && this.cursor) style.cursor = this.cursor
+      if (width) style.width = width
+      if (height) style.height = height
+
+      return style
+    },
+    defaultSlotStyles () {
       let style = {}
 
       let width = convertToUnit(this.internalValue.width)
@@ -64,70 +84,98 @@ export default baseMixins.extend({
 
       return style
     },
+    computedAspectRatio () {
+      return Number(this.aspectRatio)
+    },
+    computedHideGripBreakpoint () {
+      return Number(this.hideGripBreakpoint)
+    },
   },
 
   methods: {
-    handleMove (event) {
-      let value = Object.assign({}, this.internalValue)
-      if (this.direction) {
-        // 上
-        if (this.direction.indexOf('n') > -1) {
-          value.height = Math.max(this.originalValue.height - event.dragOffsetY, this.minHeight)
-        }
-        // 左
-        if (this.direction.indexOf('w') > -1) {
-          value.width = Math.max(this.originalValue.width - event.dragOffsetX, this.minWidth)
-        }
-        // 右
-        if (this.direction.indexOf('e') > -1) {
-          value.width = Math.max(this.originalValue.width + event.dragOffsetX, this.minWidth)
-        }
-        // 下
-        if (this.direction.indexOf('s') > -1) {
-          value.height = Math.max(this.originalValue.height + event.dragOffsetY, this.minHeight)
-        }
+    handleBoundary (value) {
+      const minHValues = [parseInt(this.minHeight) || 0, value.height, 0]
+      const minWValues = [parseInt(this.minWidth) || 0, value.width, 0]
+      const maxHValues = []
+      const maxWValues = []
+      if (parseInt(this.maxHeight)) maxHValues.push(parseInt(this.maxHeight))
+      if (this.parentHeight) maxHValues.push(this.parentHeight)
+      if (parseInt(this.maxWidth)) maxWValues.push(parseInt(this.maxWidth))
+      if (this.parentWidth) maxWValues.push(this.parentWidth)
+      value.height = Math.min(Math.max(...minHValues), ...maxHValues)
+      value.width = Math.min(Math.max(...minWValues), ...maxWValues)
+      return value
+    },
+    handleGrid (value) {
+      if (!this.computedGrid) return value
+      const [gridX, gridY] = this.computedGrid
+      if (gridX) value.width = Math.round(value.width / gridX) * gridX
+      if (gridY) value.height = Math.round(value.height / gridY) * gridY
+      return value
+    },
+    convertToAspectRatio (value) {
+      if (!this.computedAspectRatio || !this.point) return value
+      if (this.point.indexOf('l') > -1 || this.point.indexOf('r') > -1) {
+        value.height = value.width * this.computedAspectRatio
+      } else {
+        value.width = value.height / this.computedAspectRatio
       }
       return value
     },
-    genGrip (direction) {
-      const isInBreakpoint = this.internalValue.width <= this.breakpoint
-        || this.internalValue.height <= this.breakpoint
+    handleMove (event) {
+      let value = {
+        width: this.internalValue.width,
+        height: this.internalValue.height,
+      }
+      if (this.point) {
+        if (this.point.indexOf('l') > -1) {
+          value.width = this.originalValue.width - event.dragOffsetX
+        } else if (this.point.indexOf('r') > -1) {
+          value.width = this.originalValue.width + event.dragOffsetX
+        }
 
-      if (isInBreakpoint && ['e', 'se', 's'].indexOf(direction) === -1) return null
+        if (this.point.indexOf('t') > -1) {
+          value.height = this.originalValue.height - event.dragOffsetY
+        } else if (this.point.indexOf('b') > -1) {
+          value.height = this.originalValue.height + event.dragOffsetY
+        }
 
-      return this.$createElement('i', {
-        staticClass: `v-resizable__grip v-resizable__grip--${direction}`,
+        value = this.convertToAspectRatio(value)
+      }
+      return value
+    },
+    genPoint (point) {
+      const isInBreakpoint = this.internalValue.width <= this.computedHideGripBreakpoint
+        || this.internalValue.height <= this.computedHideGripBreakpoint
+
+      return this.$createElement('div', {
+        staticClass: `v-resizable__point v-resizable__point--${point}`,
         style: {
-          padding: isInBreakpoint ? 0 : undefined
+          padding: isInBreakpoint ? 0 : ''
         },
         class: {
-          'v-resizable__grip--resizing': this.direction && this.direction === direction,
-          'v-resizable__grip--hide': this.direction && this.direction !== direction,
+          'v-resizable__point--resizing': this.point && this.point === point,
+          'v-resizable__point--hide': this.point && this.point !== point || (isInBreakpoint && ['br', 'b', 'r'].indexOf(point) === -1),
         },
         on: createHandlers({
           start: event => {
-            this.direction = direction
+            this.point = point
             this.onStart(event)
           },
           move: this.onMove,
           end: event => {
-            this.direction = null
+            this.point = null
             this.onEnd(event)
           },
         }),
-      })
+      }, [
+        this.$slots[point] || this.$createElement('div', {
+          staticClass: 'v-resizable__point--grip'
+        })
+      ])
     },
-    genGrips () {
-      return [
-        this.genGrip('n'),
-        this.genGrip('nw'),
-        this.genGrip('w'),
-        this.genGrip('s'),
-        this.genGrip('sw'),
-        this.genGrip('ne'),
-        this.genGrip('e'),
-        this.genGrip('se'),
-      ]
+    genPoints () {
+      return this.points.map(this.genPoint)
     },
   },
 
@@ -137,12 +185,17 @@ export default baseMixins.extend({
       class: this.classes,
       style: this.styles,
     }, [
-      !this.disabled && this.genGrips(),
+      !this.disabled && this.genPoints(),
 
-      this.$scopedSlots.default && this.$scopedSlots.default({
-        value: this.internalValue,
-        style: this.styles,
-      })
+      h('div', {
+        staticClass: 'v-resizable__wrapper',
+      }, [
+        this.$scopedSlots.default && this.$scopedSlots.default({
+          value: this.internalValue,
+          style: this.defaultSlotStyles,
+          active: this.originalValue !== null,
+        })
+      ])
     ])
   }
 })

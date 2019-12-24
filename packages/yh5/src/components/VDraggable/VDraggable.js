@@ -15,7 +15,7 @@ export default Vue.extend({
       default: () => ({
         top: 0,
         left: 0,
-      })
+      }),
     },
     absolute: {
       type: Boolean,
@@ -27,13 +27,26 @@ export default Vue.extend({
       default: 'move'
     },
     disabled: Boolean,
+    disableX: Boolean,
+    disableY: Boolean,
+    grid: [String, Number, Array],
+    parent: {
+      type: [Boolean, String],
+      default: false,
+    },
   },
 
   data () {
     return {
       lazyValue: this.value,
       originalValue: null,
+      parentWidth: null,
+      parentHeight: null,
     }
+  },
+
+  mounted () {
+    [this.parentWidth, this.parentHeight] = this.getParentSize()
   },
 
   watch: {
@@ -66,29 +79,65 @@ export default Vue.extend({
 
       return style
     },
+    computedGrid () {
+      if (typeof this.grid === 'string') return [Number(this.grid), Number(this.grid)]
+      if (typeof this.grid === 'number') return [this.grid, this.grid]
+      return this.grid
+    },
   },
 
   methods: {
+    getParentSize () {
+      if (!this.parent) return [null, null]
+      const target = typeof this.parent === 'string' ? this.parent : this.$el.parentNode
+      const style = window.getComputedStyle(target, null)
+      return [
+        parseInt(style.getPropertyValue('width'), 10),
+        parseInt(style.getPropertyValue('height'), 10)
+      ]
+    },
+    handleBoundary (value) {
+      if (this.parentHeight) {
+        value.top = Math.max(value.top, 0)
+        value.top = Math.min(value.top, this.parentHeight - this.$el.offsetHeight)
+      }
+      if (this.parentWidth) {
+        value.left = Math.max(value.left, 0)
+        value.left = Math.min(value.left, this.parentWidth - this.$el.offsetWidth)
+      }
+      return value
+    },
+    handleGrid (value) {
+      if (!this.computedGrid) return value
+      const [gridX, gridY] = this.computedGrid
+      if (gridX) value.left = Math.round(value.left / gridX) * gridX
+      if (gridY) value.top = Math.round(value.top / gridY) * gridY
+      return value
+    },
     handleMove (event) {
       return {
-        left: this.originalValue.left + event.dragOffsetX,
-        top: this.originalValue.top + event.dragOffsetY,
+        left: this.disableX ? this.originalValue.left : this.originalValue.left + event.dragOffsetX,
+        top: this.disableY ? this.originalValue.top : this.originalValue.top + event.dragOffsetY,
       }
     },
     onStart (event) {
       this.originalValue = Object.assign({}, this.internalValue)
+      this.$emit('update:active', true)
       event.preventDefault()
       event.stopPropagation()
     },
     onMove (event) {
       if (!this.originalValue) return
-
-      this.internalValue = this.handleMove(event)
+      let value = this.handleMove(event)
+      value = this.handleGrid(value)
+      value = this.handleBoundary(value)
+      this.internalValue = value
       event.preventDefault()
       event.stopPropagation()
     },
     onEnd (event) {
       this.originalValue = null
+      this.$emit('update:active', false)
       event.preventDefault()
       event.stopPropagation()
     },
@@ -113,6 +162,7 @@ export default Vue.extend({
       element = this.$scopedSlots.default({
         value: this.internalValue,
         style: this.styles,
+        active: this.originalValue !== null,
       })
     }
 
@@ -125,6 +175,7 @@ export default Vue.extend({
     }
 
     if (!this.disabled) {
+      element.data = element.data || {}
       element.data.on = element.data.on || {}
       this._g(element.data, this.genListeners())
     }

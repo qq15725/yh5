@@ -6,7 +6,7 @@ import { convertToUnit, isNumber } from '../../util/helpers'
 
 // Components
 import VElement from '../VElement'
-import VDraggableAndResizable from '../VDraggableAndResizable'
+import VDraggableResizable from '../VDraggableResizable'
 
 // Mixins
 import Measurable from '../../mixins/measurable'
@@ -175,7 +175,7 @@ export default baseMixins.extend({
       })
     },
     genElementController () {
-      return this.$createElement(VDraggableAndResizable, {
+      return this.$createElement(VDraggableResizable, {
         staticClass: 'v-canvas__element-controller',
         props: {
           value: {
@@ -183,7 +183,9 @@ export default baseMixins.extend({
             left: this.selected.left,
             width: this.selected.width,
             height: this.selected.height,
-          }
+          },
+          minWidth: 30,
+          minHeight: 30,
         },
         on: {
           click: event => {

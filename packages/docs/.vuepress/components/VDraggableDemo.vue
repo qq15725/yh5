@@ -1,12 +1,53 @@
 <template>
   <div style="position: relative; min-height: 300px;">
-    <div style="height: 50px;">{{ value }}</div>
+    <v-draggable
+      v-model="data[0]"
+    >
+      <template #default="{ style, value, active }">
+        <div :style="style" class="box">
+          <div>拖拽我</div>
+          <div class="tip" v-if="active">x:{{ value.left }}, y:{{ value.top }}</div>
+        </div>
+      </template>
+    </v-draggable>
+
+    <div
+      class="box box--absolute"
+      :style="{ top: `${data[1].top}px`, left: `${data[1].left}px` }"
+    >
+      <v-draggable
+        v-model="data[1]"
+        :active.sync="isActive"
+      >
+        <template #default>
+          <button>拖这里</button>
+        </template>
+      </v-draggable>
+
+      <div v-if="isActive" class="tip">x:{{ data[1].left }}, y:{{ data[1].top }}</div>
+    </div>
 
     <v-draggable
-      v-model="value"
+      v-model="data[2]"
+      disable-y
     >
-      <template #default="{ style }">
-        <div :style="style" class="box">拖拽我</div>
+      <template #default="{ style, value, active }">
+        <div :style="style" class="box">
+          <div>只可横向移动</div>
+          <div class="tip" v-if="active">x:{{ value.left }}, y:{{ value.top }}</div>
+        </div>
+      </template>
+    </v-draggable>
+
+    <v-draggable
+      v-model="data[3]"
+      disable-x
+    >
+      <template #default="{ style, value, active }">
+        <div :style="style" class="box">
+          <div>只可纵向移动</div>
+          <div class="tip" v-if="active">x:{{ value.left }}, y:{{ value.top }}</div>
+        </div>
       </template>
     </v-draggable>
   </div>
@@ -21,10 +62,25 @@
     },
     data () {
       return {
-        value: {
-          left: 0,
-          top: 50,
-        }
+        isActive: false,
+        data: [
+          {
+            left: 0,
+            top: 50,
+          },
+          {
+            left: 120,
+            top: 50,
+          },
+          {
+            left: 0,
+            top: 200,
+          },
+          {
+            left: 120,
+            top: 200,
+          }
+        ]
       }
     }
   }
@@ -39,5 +95,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .box--absolute {
+    position: absolute;
+  }
+
+  .tip {
+    position: absolute;
+    bottom: 0;
+    right: 0;
   }
 </style>

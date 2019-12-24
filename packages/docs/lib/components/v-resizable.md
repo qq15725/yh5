@@ -3,23 +3,31 @@
 ```html
 <template>
   <div style="position: relative; min-height: 300px;">
-    <div style="height: 50px;">{{ value }}</div>
-
     <v-resizable
-      v-model="value"
+      v-model="data"
     >
-      <template #default="{ style }">
+      <template #default="{ style, value, active }">
         <div :style="style" class="box">调整大小</div>
+
+        <div v-if="active">
+          w:{{ value.width }},
+          h:{{ value.height }}
+        </div>
       </template>
     </v-resizable>
   </div>
 </template>
 
 <script>
+  import { VResizable } from 'yh5'
+
   export default {
+    components: {
+      VResizable
+    },
     data () {
       return {
-        value: {
+        data: {
           width: 100,
           height: 100,
         }

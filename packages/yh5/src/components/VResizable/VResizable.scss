@@ -2,6 +2,10 @@
   position: relative;
   box-sizing: border-box;
 
+  &__wrapper {
+    position: relative;
+  }
+
   &:not(.v-resizable--disabled):before {
     content: "";
     box-sizing: initial;
@@ -20,7 +24,7 @@
     margin: -1px 0 0 -1px;
   }
 
-  &__grip {
+  &__point {
     padding: 11px;
     position: absolute;
     left: 0;
@@ -33,8 +37,7 @@
       opacity: 0;
     }
 
-    &:before {
-      content: '';
+    &--grip {
       box-sizing: border-box;
       display: block;
       background: #FFF;
@@ -43,54 +46,54 @@
       border-radius: 6px;
     }
 
-    &--n {
+    &--t {
       cursor: ns-resize;
       left: 50%;
       margin-top: -1px;
     }
 
-    &--nw {
+    &--tl {
       cursor: nwse-resize;
       margin-left: -1px;
       margin-top: -1px;
     }
 
-    &--w {
+    &--l {
       cursor: ew-resize;
       top: 50%;
       left: 0;
       margin-left: -1px;
     }
 
-    &--sw {
+    &--bl {
       cursor: nesw-resize;
       top: 100%;
       margin-left: -1px;
       margin-top: 1px;
     }
 
-    &--s {
+    &--b {
       cursor: ns-resize;
       left: 50%;
       top: 100%;
       margin-top: 1px;
     }
 
-    &--ne {
+    &--tr {
       cursor: nesw-resize;
       left: 100%;
       margin-top: -1px;
       margin-left: 1px;
     }
 
-    &--e {
+    &--r {
       cursor: ew-resize;
       left: 100%;
       top: 50%;
       margin-left: 1px;
     }
 
-    &--se {
+    &--br {
       cursor: nwse-resize;
       left: 100%;
       top: 100%;
@@ -98,27 +101,27 @@
       margin-top: 1px;
     }
 
-    &--e,
-    &--w {
-      &:before {
+    &--r,
+    &--l {
+      .v-resizable__point--grip {
         height: 16px;
         width: 7px;
       }
     }
 
-    &--n,
-    &--s {
-      &:before {
+    &--t,
+    &--b {
+      .v-resizable__point--grip {
         width: 16px;
         height: 7px;
       }
     }
 
-    &--sw,
-    &--nw,
-    &--ne,
-    &--se {
-      &:before {
+    &--bl,
+    &--tl,
+    &--tr,
+    &--br {
+      .v-resizable__point--grip {
         width: 12px;
         height: 12px;
         border-radius: 50%;

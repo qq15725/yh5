@@ -20,7 +20,8 @@
     >
       <v-draggable
         v-model="data[1]"
-        :active.sync="isActive"
+        @dragging="isActive = true"
+        @dragstop="isActive = false"
       >
         <template #default>
           <button>拖这里</button>

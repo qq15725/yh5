@@ -6,7 +6,6 @@ import VDraggable from '../VDraggable'
 import VResizable from '../VResizable'
 
 const baseMixins = mixins(
-  VDraggable,
   VResizable,
 )
 
@@ -119,11 +118,15 @@ export default baseMixins.extend({
     }, [
       !this.disabled && this.genPoints(),
 
-      this.$scopedSlots.default && this.$scopedSlots.default({
-        style: this.resizableDefaultSlotStyles,
-        value: this.internalValue,
-        active: this.originalValue !== null
-      }),
+      h('div', {
+        staticClass: 'v-resizable__wrapper',
+      }, [
+        this.$scopedSlots.default && this.$scopedSlots.default({
+          style: this.resizableDefaultSlotStyles,
+          value: this.internalValue,
+          active: this.originalValue !== null
+        }),
+      ]),
     ])
   }
 })

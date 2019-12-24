@@ -78,6 +78,20 @@ export default baseMixins.extend({
       }
       return Object.assign({}, value, VDraggable.options.methods.handleMove.call(this, event))
     },
+    emitMoveEvent () {
+      if (this.point) {
+        VResizable.options.methods.emitMoveEvent.call(this)
+      } else {
+        VDraggable.options.methods.emitMoveEvent.call(this)
+      }
+    },
+    emitEndEvent () {
+      if (this.point) {
+        VResizable.options.methods.emitEndEvent.call(this)
+      } else {
+        VDraggable.options.methods.emitEndEvent.call(this)
+      }
+    },
     genPoint (point) {
       const element = VResizable.options.methods.genPoint.call(this, point)
 

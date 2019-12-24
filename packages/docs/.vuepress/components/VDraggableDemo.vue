@@ -17,7 +17,8 @@
     >
       <v-draggable
         v-model="data[1]"
-        :active.sync="isActive"
+        @dragging="isActive = true"
+        @dragstop="isActive = false"
       >
         <template #default>
           <button>拖这里</button>
@@ -29,7 +30,7 @@
 
     <v-draggable
       v-model="data[2]"
-      disable-y
+      axis="x"
     >
       <template #default="{ style, value, active }">
         <div :style="style" class="box">
@@ -41,7 +42,7 @@
 
     <v-draggable
       v-model="data[3]"
-      disable-x
+      axis="y"
     >
       <template #default="{ style, value, active }">
         <div :style="style" class="box">

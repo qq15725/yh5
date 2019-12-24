@@ -144,6 +144,12 @@ export default baseMixins.extend({
       }
       return value
     },
+    emitMoveEvent () {
+      this.$emit('resizing', this.internalValue)
+    },
+    emitEndEvent () {
+      this.$emit('resizestop', this.internalValue)
+    },
     genPoint (point) {
       const isInBreakpoint = this.internalValue.width <= this.computedHideGripBreakpoint
         || this.internalValue.height <= this.computedHideGripBreakpoint
@@ -164,8 +170,8 @@ export default baseMixins.extend({
           },
           move: this.onMove,
           end: event => {
-            this.point = null
             this.onEnd(event)
+            this.point = null
           },
         }),
       }, [

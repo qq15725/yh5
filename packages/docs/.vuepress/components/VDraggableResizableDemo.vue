@@ -12,6 +12,10 @@
         :max-height="200"
         parent
         :aspect-ratio="1"
+        @dragging="onDragging"
+        @dragstop="onDragstop"
+        @resizing="onResizing"
+        @resizestop="onResizestop"
       >
         <template #default="{ style, value, active }">
           <div :style="style" class="box">拖拽、调整大小</div>
@@ -43,6 +47,22 @@
     components: {
       VDraggableResizable
     },
+
+    methods: {
+      onDragging () {
+        console.log('onDragging')
+      },
+      onDragstop () {
+        console.log('onDragstop')
+      },
+      onResizing () {
+        console.log('onResizing')
+      },
+      onResizestop () {
+        console.log('onResizestop')
+      },
+    },
+
     data () {
       return {
         data: {

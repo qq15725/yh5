@@ -27,8 +27,11 @@ export default Vue.extend({
       default: 'move'
     },
     disabled: Boolean,
-    disableX: Boolean,
-    disableY: Boolean,
+    axis: {
+      type: String,
+      default: 'both',
+      validator: val => ['x', 'y', 'both'].includes(val)
+    },
     grid: [String, Number, Array],
     parent: {
       type: [Boolean, String],
@@ -116,13 +119,18 @@ export default Vue.extend({
     },
     handleMove (event) {
       return {
-        left: this.disableX ? this.originalValue.left : this.originalValue.left + event.dragOffsetX,
-        top: this.disableY ? this.originalValue.top : this.originalValue.top + event.dragOffsetY,
+        left: this.axis === 'y' ? this.originalValue.left : this.originalValue.left + event.dragOffsetX,
+        top: this.axis === 'x' ? this.originalValue.top : this.originalValue.top + event.dragOffsetY,
       }
+    },
+    emitMoveEvent () {
+      this.$emit('dragging', this.internalValue)
+    },
+    emitEndEvent () {
+      this.$emit('dragstop', this.internalValue)
     },
     onStart (event) {
       this.originalValue = Object.assign({}, this.internalValue)
-      this.$emit('update:active', true)
       event.preventDefault()
       event.stopPropagation()
     },
@@ -132,12 +140,13 @@ export default Vue.extend({
       value = this.handleGrid(value)
       value = this.handleBoundary(value)
       this.internalValue = value
+      this.emitMoveEvent && this.emitMoveEvent()
       event.preventDefault()
       event.stopPropagation()
     },
     onEnd (event) {
       this.originalValue = null
-      this.$emit('update:active', false)
+      this.emitEndEvent && this.emitEndEvent()
       event.preventDefault()
       event.stopPropagation()
     },

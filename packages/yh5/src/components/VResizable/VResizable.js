@@ -56,7 +56,7 @@ export default baseMixins.extend({
     classes () {
       return {
         'v-resizable--disabled': this.disabled,
-        'v-resizable--resizing': this.point !== null,
+        'v-resizable--activated': this.originalValue !== null,
       }
     },
     styles () {
@@ -93,7 +93,7 @@ export default baseMixins.extend({
   },
 
   methods: {
-    handleBoundary (value) {
+    handleEdge (value) {
       const minHValues = [parseInt(this.minHeight) || 0, value.height, 0]
       const minWValues = [parseInt(this.minWidth) || 0, value.width, 0]
       const maxHValues = []
@@ -106,7 +106,7 @@ export default baseMixins.extend({
       value.width = Math.min(Math.max(...minWValues), ...maxWValues)
       return value
     },
-    handleGrid (value) {
+    snapToGrid (value) {
       if (!this.computedGrid) return value
       const [gridX, gridY] = this.computedGrid
       if (gridX) value.width = Math.round(value.width / gridX) * gridX

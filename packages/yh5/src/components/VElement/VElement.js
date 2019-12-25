@@ -8,11 +8,13 @@ import mixins from '../../util/mixins'
 import Positionable from '../../mixins/positionable'
 import Measurable from '../../mixins/measurable'
 import Transitionable from '../../mixins/transitionable'
+import Sketchitemable from '../../mixins/sketchitemable'
 
 const baseMixins = mixins(
   Positionable,
   Measurable,
-  Transitionable
+  Transitionable,
+  Sketchitemable
 )
 
 export default baseMixins.extend({

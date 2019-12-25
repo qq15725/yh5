@@ -10,12 +10,14 @@ import VDraggableResizable from '../VDraggableResizable'
 
 // Mixins
 import Measurable from '../../mixins/measurable'
+import Sketchable from '../../mixins/sketchable'
 
 // Directives
 import resize from '../../directives/resize'
 
 const baseMixins = mixins(
   Measurable,
+  Sketchable,
 )
 
 export default baseMixins.extend({
@@ -115,7 +117,7 @@ export default baseMixins.extend({
         },
       })
     },
-    genElement (item) {
+    genElement (item, disabled = false) {
       let { children, on, style, class: _class, ...attrs } = item
 
       this.xFields.forEach(key => {
@@ -131,7 +133,7 @@ export default baseMixins.extend({
       })
 
       if (Array.isArray(children)) {
-        children = children.map(this.genElement)
+        children = children.map(i => this.genElement(i, true))
       }
 
       return this.$createElement(VElement, {
@@ -139,6 +141,7 @@ export default baseMixins.extend({
         style,
         attrs,
         props: {
+          disabled,
           appear: this.appear,
           absolute: this.absolute,
         },
@@ -192,7 +195,9 @@ export default baseMixins.extend({
             event.preventDefault()
             event.stopPropagation()
           },
-          input: val => Object.keys(val).forEach(name => {
+          dragging: this.calculateRefLines,
+          dragstop: this.clearRefLines,
+          change: val => Object.keys(val).forEach(name => {
             this.$set(this.value[this.internalSelectedIndex], name, val[name])
           })
         },
@@ -216,13 +221,14 @@ export default baseMixins.extend({
       h('div', {
         staticClass: 'v-canvas__wrapper'
       }, [
-        !this.hideElements && this.genElements(),
+        !this.hideElements && this.value && this.genElements(),
         this.$slots.default,
       ]),
       this.internalSelectedIndex !== null && this.genElementController(),
       this.hoverIndex !== null
       && this.internalSelectedIndex !== this.hoverIndex
       && this.genHover(),
+      this.genRefLines(),
     ])
   }
 })

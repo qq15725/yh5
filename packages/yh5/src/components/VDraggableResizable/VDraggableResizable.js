@@ -45,13 +45,13 @@ export default baseMixins.extend({
   },
 
   methods: {
-    handleBoundary (value) {
+    handleEdge (value) {
       return Object.assign(
-        VResizable.options.methods.handleBoundary.call(this, value),
-        VDraggable.options.methods.handleBoundary.call(this, value)
+        VResizable.options.methods.handleEdge.call(this, value),
+        VDraggable.options.methods.handleEdge.call(this, value)
       )
     },
-    handleGrid (value) {
+    snapToGrid (value) {
       if (!this.computedGrid) return value
       const [gridX, gridY] = this.computedGrid
       if (gridX) {

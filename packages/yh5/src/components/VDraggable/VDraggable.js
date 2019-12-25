@@ -1,12 +1,18 @@
-import Vue from 'vue'
-
 // Helpers
+import mixins from '../../util/mixins'
 import { convertToUnit } from '../../util/helpers'
 
 // Directives
 import { createHandlers } from '../../directives/draggable'
 
-export default Vue.extend({
+// Mixins
+import Proxyable from '../../mixins/proxyable'
+
+const baseMixins = mixins(
+  Proxyable
+)
+
+export default baseMixins.extend({
   name: 'v-draggable',
 
   props: {
@@ -41,7 +47,6 @@ export default Vue.extend({
 
   data () {
     return {
-      lazyValue: this.value,
       originalValue: null,
       parentWidth: null,
       parentHeight: null,
@@ -52,22 +57,7 @@ export default Vue.extend({
     [this.parentWidth, this.parentHeight] = this.getParentSize()
   },
 
-  watch: {
-    value (val) {
-      this.lazyValue = val
-    },
-  },
-
   computed: {
-    internalValue: {
-      get () {
-        return this.lazyValue
-      },
-      set (val) {
-        this.lazyValue = val
-        this.$emit('input', val)
-      },
-    },
     styles () {
       let style = {}
 
@@ -99,7 +89,7 @@ export default Vue.extend({
         parseInt(style.getPropertyValue('height'), 10)
       ]
     },
-    handleBoundary (value) {
+    handleEdge (value) {
       if (this.parentHeight) {
         value.top = Math.max(value.top, 0)
         value.top = Math.min(value.top, this.parentHeight - this.$el.offsetHeight)
@@ -110,7 +100,7 @@ export default Vue.extend({
       }
       return value
     },
-    handleGrid (value) {
+    snapToGrid (value) {
       if (!this.computedGrid) return value
       const [gridX, gridY] = this.computedGrid
       if (gridX) value.left = Math.round(value.left / gridX) * gridX
@@ -137,8 +127,8 @@ export default Vue.extend({
     onMove (event) {
       if (!this.originalValue) return
       let value = this.handleMove(event)
-      value = this.handleGrid(value)
-      value = this.handleBoundary(value)
+      value = this.snapToGrid(value)
+      value = this.handleEdge(value)
       this.internalValue = value
       this.emitMoveEvent && this.emitMoveEvent()
       event.preventDefault()
@@ -166,7 +156,6 @@ export default Vue.extend({
 
     let element
 
-    /* istanbul ignore else */
     if (this.$scopedSlots.default) {
       element = this.$scopedSlots.default({
         value: this.internalValue,

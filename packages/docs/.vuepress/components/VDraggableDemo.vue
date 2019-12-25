@@ -1,5 +1,7 @@
 <template>
-  <div style="position: relative; min-height: 300px;">
+  <v-canvas
+    :height="500"
+  >
     <v-draggable
       v-model="data[0]"
     >
@@ -51,14 +53,15 @@
         </div>
       </template>
     </v-draggable>
-  </div>
+  </v-canvas>
 </template>
 
 <script>
-  import { VDraggable } from 'yh5/src'
+  import { VDraggable, VCanvas } from 'yh5/src'
 
   export default {
     components: {
+      VCanvas,
       VDraggable
     },
     data () {

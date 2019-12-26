@@ -3,21 +3,27 @@ import './VCanvas.scss'
 // Helpers
 import mixins from '../../util/mixins'
 import { convertToUnit, isNumber } from '../../util/helpers'
+import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Components
 import VElement from '../VElement'
 import VDraggableResizable from '../VDraggableResizable'
+import VLine from '../../components/VLine'
 
 // Mixins
+import Proxyable from '../../mixins/proxyable'
 import Measurable from '../../mixins/measurable'
-import Sketchable from '../../mixins/sketchable'
 
 // Directives
 import resize from '../../directives/resize'
 
+// Default values
+export const defaultRefLineTypes = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
+
 const baseMixins = mixins(
+  Proxyable,
   Measurable,
-  Sketchable,
+  RegistrableProvide('canvas'),
 )
 
 export default baseMixins.extend({
@@ -28,7 +34,10 @@ export default baseMixins.extend({
   directives: { resize },
 
   props: {
-    value: Array,
+    value: {
+      type: Array,
+      default: () => [],
+    },
     selectedIndex: {
       type: Number,
       default: null,
@@ -45,7 +54,16 @@ export default baseMixins.extend({
     referenceWidth: Number,
     referenceHeight: Number,
     background: String,
-    hideElements: Boolean
+    hideElements: Boolean,
+    threshold: {
+      type: Number,
+      default: 5
+    },
+    refLineTypes: {
+      type: Array,
+      default: () => defaultRefLineTypes,
+      validator: val => new Set(val.filter(h => new Set(defaultRefLineTypes).has(h))).size === val.length
+    },
   },
 
   watch: {
@@ -58,6 +76,8 @@ export default baseMixins.extend({
     return {
       lazySelectedIndex: this.selectedIndex,
       hoverIndex: null,
+      items: [],
+      refLines: [],
       resizeWrapper: {
         offsetWidth: null,
         offsetHeight: null,
@@ -90,10 +110,10 @@ export default baseMixins.extend({
       },
     },
     selected () {
-      return this.value[this.internalSelectedIndex]
+      return this.internalValue[this.internalSelectedIndex]
     },
     hovered () {
-      return this.value[this.hoverIndex]
+      return this.internalValue[this.hoverIndex]
     },
   },
 
@@ -118,72 +138,89 @@ export default baseMixins.extend({
       })
     },
     genElement (item, index, disabled = false) {
-      let { children, on, style, class: _class, ...attrs } = item
+      const fields = [
+        'class', 'style', 'directives', 'staticClass', 'on', 'nativeOn',
+        'attrs', 'props', 'domProps', 'scopedSlots', 'staticStyle',
+        'hook', 'transition', 'slot', 'key', 'ref', 'show', 'keepAlive'
+      ]
+
+      const excludedField = [
+        'tag', 'children'
+      ]
+
+      const data = {
+        attrs: {}
+      }
+
+      Object.keys(item).forEach(key => {
+        if (fields.includes(key)) {
+          data[key] = item[key]
+        } else if (!excludedField.includes(key)) {
+          data.attrs[key] = item[key]
+        }
+      })
 
       this.xFields.forEach(key => {
-        if (attrs[key] !== undefined) {
-          attrs[key] = this.convertToAspectRatio(attrs[key], true)
+        if (data.attrs[key] !== undefined) {
+          data.attrs[key] = this.convertToAspectRatio(data.attrs[key], true)
         }
       })
 
       this.yFields.forEach(key => {
-        if (attrs[key] !== undefined) {
-          attrs[key] = this.convertToAspectRatio(attrs[key], false)
+        if (data.attrs[key] !== undefined) {
+          data.attrs[key] = this.convertToAspectRatio(data.attrs[key], false)
         }
       })
+
+      let children = item.children
 
       if (Array.isArray(children)) {
         children = children.map((x, i) => this.genElement(x, i, true))
       }
 
-      if (!disabled) {
-        on = on || {}
+      let on = {}
+      if (this.editable && !disabled) {
         on['size-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.value[index], name, val[name])
+          this.$set(this.internalValue[index], name, val[name])
         })
         on['position-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.value[index], name, val[name])
+          this.$set(this.internalValue[index], name, val[name])
         })
+
+        data.on = data.on || {}
+        data.on['click'] = event => {
+          this.internalSelectedIndex = index
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        data.on['mouseenter'] = () => this.hoverIndex = index
+        data.on['mouseleave'] = () => this.hoverIndex = null
       }
 
       return this.$createElement(VElement, {
-        class: _class,
-        style,
-        attrs,
+        attrs: data.attrs,
         props: {
-          disabled,
+          index,
           appear: this.appear,
           absolute: this.absolute,
         },
         on,
-      }, children)
+        scopedSlots: {
+          default: () => this.$createElement(item.tag || 'div', data, children)
+        }
+      })
     },
     genElements () {
-      return this.value.map((item, index) => {
-        const element = this.genElement(item, index)
-        if (element && this.editable) {
-          element.data.on = element.data.on || {}
-          this._g(element.data, {
-            click: event => {
-              this.internalSelectedIndex = index
-              event.preventDefault()
-              event.stopPropagation()
-            },
-            mouseenter: () => this.hoverIndex = index,
-            mouseleave: () => this.hoverIndex = null,
-          })
-        }
-        return element
-      })
+      return this.value.map((x, i) => this.genElement(x, i, false))
     },
     genHover () {
       return this.$createElement('div', {
         staticClass: 'v-canvas__hovered',
         style: {
-          top: convertToUnit(this.hovered.top),
-          left: convertToUnit(this.hovered.left),
-          width: convertToUnit(this.hovered.width),
-          height: convertToUnit(this.hovered.height),
+          top: convertToUnit(this.hovered.top || 0),
+          left: convertToUnit(this.hovered.left || 0),
+          width: convertToUnit(this.hovered.width || 0),
+          height: convertToUnit(this.hovered.height || 0),
         }
       })
     },
@@ -208,10 +245,72 @@ export default baseMixins.extend({
           dragging: this.calculateRefLines,
           dragstop: this.clearRefLines,
           change: val => Object.keys(val).forEach(name => {
-            this.$set(this.value[this.internalSelectedIndex], name, val[name])
+            this.$set(this.internalValue[this.internalSelectedIndex], name, val[name])
           })
         },
       })
+    },
+    register (item) {
+      this.items.push(item)
+    },
+    unregister (item) {
+      const found = this.items.find(i => i._uid === item._uid)
+      if (!found) return
+      this.items = this.items.filter(i => i._uid !== found._uid)
+    },
+    clearRefLines () {
+      this.refLines = []
+    },
+    getYPos (value) {
+      return [
+        value.top,
+        value.top + value.height / 2,
+        value.top + value.height
+      ]
+    },
+    getXPos (value) {
+      return [
+        value.left,
+        value.left + value.width / 2,
+        value.left + value.width
+      ]
+    },
+    calculateRefLines (value) {
+      const threshold = this.threshold + 1
+      const YPos = this.getYPos(value)
+      const XPos = this.getXPos(value)
+      this.refLines = this.items.filter(item => item.index !== this.internalSelectedIndex).reduce((items, item) => {
+        const top = Math.min(value.top, item.top)
+        const left = Math.min(value.left, item.left)
+        const right = Math.max(value.left + value.width, item.left + item.width)
+        const bottom = Math.max(value.top + value.height, item.top + item.height)
+
+        this.refLineTypes.forEach(type => {
+          const isCompareX = type.indexOf('h') > -1
+          const comparePos = item.refLines[type]
+          if ((isCompareX ? XPos : YPos).some(pos => Math.abs(pos - comparePos) < threshold)) {
+            if (isCompareX) {
+              items.push({
+                left: comparePos,
+                top,
+                length: bottom - top,
+                vertical: true,
+              })
+            } else {
+              items.push({
+                left,
+                top: comparePos,
+                length: right - left,
+              })
+            }
+          }
+        })
+
+        return items
+      }, [])
+    },
+    genRefLines () {
+      return this.refLines.map(props => this.$createElement(VLine, { props }))
     },
   },
 
@@ -231,8 +330,7 @@ export default baseMixins.extend({
       h('div', {
         staticClass: 'v-canvas__wrapper'
       }, [
-        !this.hideElements && this.value && this.genElements(),
-        this.$slots.default,
+        this.$slots.default || !this.hideElements && this.value && this.genElements(),
       ]),
       this.internalSelectedIndex !== null && this.genElementController(),
       this.hoverIndex !== null

@@ -1,4 +1,5 @@
 export * from './VCanvas'
+export * from './VElement'
 export * from './VSwiper'
 export * from './VDraggable'
 export * from './VResizable'

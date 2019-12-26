@@ -2,7 +2,7 @@
 import { inject as RegistrableInject } from '../../mixins/registrable'
 
 export default RegistrableInject('sketch').extend({
-  name: 'sketchitemable',
+  name: 'sketch-item',
 
   props: {
     height: [Number, String],

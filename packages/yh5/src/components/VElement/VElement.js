@@ -8,13 +8,17 @@ import mixins from '../../util/mixins'
 import Positionable from '../../mixins/positionable'
 import Measurable from '../../mixins/measurable'
 import Transitionable from '../../mixins/transitionable'
-import Sketchitemable from '../../mixins/sketchitemable'
+import SketchItem from '../../mixins/sketch-item'
+import SizeBootable from '../../mixins/size-bootable'
+import PositionBootable from '../../mixins/position-bootable'
 
 const baseMixins = mixins(
   Positionable,
   Measurable,
   Transitionable,
-  Sketchitemable
+  SketchItem,
+  SizeBootable,
+  PositionBootable,
 )
 
 export default baseMixins.extend({
@@ -26,12 +30,20 @@ export default baseMixins.extend({
     tag: null,
   },
 
+  mounted () {
+    if (!this.height || !this.width) {
+      this.sizeBoot()
+    }
+    if (!this.top || !this.left) {
+      this.positionBoot()
+    }
+  },
+
   computed: {
     classes () {
       return {
         'v-element': true,
-        'v-element--absolute': this.absolute,
-        'v-element--fixed': this.fixed,
+        ...this.positionableClasses,
       }
     },
     styles () {

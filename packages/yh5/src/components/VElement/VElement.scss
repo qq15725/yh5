@@ -1,9 +1,9 @@
 .v-element {
   position: relative;
-  &--absolute {
+  &.v-position--absolute {
     position: absolute;
   }
-  &--fixed {
+  &.v-position--fixed {
     position: fixed;
   }
 }

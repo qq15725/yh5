@@ -31,5 +31,11 @@ export default Vue.extend({
 
       return styles
     },
+    positionableClasses () {
+      return {
+        'v-position--absolute': this.absolute,
+        'v-position--fixed': this.fixed,
+      }
+    }
   },
 })

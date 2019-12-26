@@ -117,7 +117,7 @@ export default baseMixins.extend({
         },
       })
     },
-    genElement (item, disabled = false) {
+    genElement (item, index, disabled = false) {
       let { children, on, style, class: _class, ...attrs } = item
 
       this.xFields.forEach(key => {
@@ -133,7 +133,17 @@ export default baseMixins.extend({
       })
 
       if (Array.isArray(children)) {
-        children = children.map(i => this.genElement(i, true))
+        children = children.map((x, i) => this.genElement(x, i, true))
+      }
+
+      if (!disabled) {
+        on = on || {}
+        on['size-booted'] = val => Object.keys(val).forEach(name => {
+          this.$set(this.value[index], name, val[name])
+        })
+        on['position-booted'] = val => Object.keys(val).forEach(name => {
+          this.$set(this.value[index], name, val[name])
+        })
       }
 
       return this.$createElement(VElement, {
@@ -150,7 +160,7 @@ export default baseMixins.extend({
     },
     genElements () {
       return this.value.map((item, index) => {
-        const element = this.genElement(item)
+        const element = this.genElement(item, index)
         if (element && this.editable) {
           element.data.on = element.data.on || {}
           this._g(element.data, {
@@ -182,10 +192,10 @@ export default baseMixins.extend({
         staticClass: 'v-canvas__element-controller',
         props: {
           value: {
-            top: this.selected.top,
-            left: this.selected.left,
-            width: this.selected.width,
-            height: this.selected.height,
+            top: this.selected.top || 0,
+            left: this.selected.left || 0,
+            width: this.selected.width || 10,
+            height: this.selected.height || 10,
           },
           minWidth: 30,
           minHeight: 30,

@@ -3,12 +3,11 @@ import './VCanvas.scss'
 // Helpers
 import mixins from '../../util/mixins'
 import { convertToUnit, isNumber } from '../../util/helpers'
-import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Components
 import VCanvasElement from './VCanvasElement'
 import VCanvasElementController from './VCanvasElementController'
-import VLine from '../../components/VLine'
+import VSketch from '../VSketch'
 
 // Mixins
 import Proxyable from '../../mixins/proxyable'
@@ -17,13 +16,10 @@ import Measurable from '../../mixins/measurable'
 // Directives
 import resize from '../../directives/resize'
 
-// Default values
-export const defaultRefLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
-
 const baseMixins = mixins(
   Proxyable,
   Measurable,
-  RegistrableProvide('canvas'),
+  VSketch,
 )
 
 export default baseMixins.extend({
@@ -44,10 +40,6 @@ export default baseMixins.extend({
       type: Array,
       default: () => [],
     },
-    selectedIndex: {
-      type: Number,
-      default: null,
-    },
     editable: Boolean,
     appear: {
       type: Boolean,
@@ -61,29 +53,11 @@ export default baseMixins.extend({
     referenceHeight: Number,
     background: String,
     hideElements: Boolean,
-    threshold: {
-      type: Number,
-      default: 5
-    },
-    refLineDirections: {
-      type: Array,
-      default: () => defaultRefLineDirections,
-      validator: val => new Set(val.filter(h => new Set(defaultRefLineDirections).has(h))).size === val.length
-    },
-  },
-
-  watch: {
-    selectedIndex (val) {
-      this.lazySelectedIndex = val
-    },
   },
 
   data () {
     return {
-      lazySelectedIndex: this.selectedIndex,
       hoverIndex: null,
-      items: [],
-      refLines: [],
       resizeWrapper: {
         offsetWidth: null,
         offsetHeight: null,
@@ -106,26 +80,11 @@ export default baseMixins.extend({
   },
 
   computed: {
-    internalSelectedIndex: {
-      get () {
-        return this.lazySelectedIndex
-      },
-      set (val) {
-        this.lazySelectedIndex = val
-        this.$emit('update:selected-index', val)
-      },
-    },
     selected () {
       return this.internalValue[this.internalSelectedIndex]
     },
     hovered () {
       return this.internalValue[this.hoverIndex]
-    },
-    refLinesAllDirections () {
-      return [
-        this.refLineDirections.filter(type => type.indexOf('h') > -1),
-        this.refLineDirections.filter(type => type.indexOf('h') === -1),
-      ]
     },
   },
 
@@ -249,99 +208,11 @@ export default baseMixins.extend({
             event.preventDefault()
             event.stopPropagation()
           },
-          dragging: this.calculateRefLines,
-          dragstop: this.clearRefLines,
+          dragging: this.calculateAdsorptionLines,
+          dragstop: this.clearAdsorptionLines,
           change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
         },
       })
-    },
-    register (item) {
-      this.items.push(item)
-    },
-    unregister (item) {
-      const found = this.items.find(i => i._uid === item._uid)
-      if (!found) return
-      this.items = this.items.filter(i => i._uid !== found._uid)
-    },
-    getPointsByValue (value) {
-      const getPoint = {
-        vt: () => value.top,
-        vm: () => value.top + value.height / 2,
-        vb: () => value.top + value.height,
-        hl: () => value.left,
-        hm: () => value.left + value.width / 2,
-        hr: () => value.left + value.width,
-      }
-
-      return this.refLineDirections.reduce((position, key) => {
-        position[key] = getPoint[key]()
-        return position
-      }, {})
-    },
-    clearRefLines () {
-      this.refLines = []
-    },
-    calculateRefLines (value) {
-      const threshold = this.threshold + 1
-      const points = this.getPointsByValue(value)
-      const items = this.items.filter(item => {
-        return item.index !== this.internalSelectedIndex
-      }).reduce((items, item) => {
-        const top = Math.min(value.top, item.top)
-        const left = Math.min(value.left, item.left)
-        const right = Math.max(value.left + value.width, item.left + item.width)
-        const bottom = Math.max(value.top + value.height, item.top + item.height)
-        this.refLinesAllDirections.forEach((directions, index) => {
-          directions.forEach(compareDirection => {
-            const comparePoint = item.refPoints[compareDirection]
-            directions.forEach(direction => {
-              const distance = Math.abs(points[direction] - comparePoint)
-              if (distance < threshold) {
-                let item = {
-                  distance,
-                  direction,
-                  compareDirection,
-                }
-                if (index === 0) {
-                  item = Object.assign(item, {
-                    left: comparePoint,
-                    top,
-                    length: bottom - top,
-                    vertical: true,
-                  })
-                } else {
-                  item = Object.assign(item, {
-                    left,
-                    top: comparePoint,
-                    length: right - left,
-                  })
-                }
-                items.push(item)
-              }
-            })
-          })
-        })
-        return items
-      }, []).sort((a, b) => {
-        return Math.abs(b.distance - a.distance)
-      })
-
-      // 从所有线中取xy上的两根线
-      const lines = []
-      let i = items.length
-      while (i--) {
-        if (!lines[0] || lines[0].vertical !== items[i].vertical) {
-          lines.push(items[i])
-        }
-        if (lines.length >= 2) {
-          break
-        }
-      }
-      
-      this.refLines = lines
-    },
-    genRefLines () {
-      return this.refLines.map(props => this.$createElement(VLine, { props }))
     },
   },
 
@@ -368,7 +239,7 @@ export default baseMixins.extend({
       this.hoverIndex !== null
       && this.internalSelectedIndex !== this.hoverIndex
       && this.genHover(),
-      this.genRefLines(),
+      this.genAdsorptionLines(),
     ])
   }
 })

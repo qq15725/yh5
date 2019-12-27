@@ -18,8 +18,8 @@ export default baseMixins.extend({
 
   methods: {
     handleAdsorption (value) {
-      if (this.canvas.refLines.length) {
-        this.canvas.refLines.forEach(item => {
+      if (this.canvas.adsorptionLines.length) {
+        this.canvas.adsorptionLines.forEach(item => {
           switch (item.direction) {
             case 'hl':
               value.left = item.left

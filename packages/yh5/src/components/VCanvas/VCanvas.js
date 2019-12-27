@@ -6,8 +6,8 @@ import { convertToUnit, isNumber } from '../../util/helpers'
 import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Components
-import VElement from '../VElement'
-import VDraggableResizable from '../VDraggableResizable'
+import VCanvasElement from './VCanvasElement'
+import VCanvasElementController from './VCanvasElementController'
 import VLine from '../../components/VLine'
 
 // Mixins
@@ -18,7 +18,7 @@ import Measurable from '../../mixins/measurable'
 import resize from '../../directives/resize'
 
 // Default values
-export const defaultRefLineTypes = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
+export const defaultRefLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
 
 const baseMixins = mixins(
   Proxyable,
@@ -30,6 +30,12 @@ export default baseMixins.extend({
   inheritAttrs: false,
 
   name: 'v-canvas',
+
+  provide () {
+    return {
+      canvas: this,
+    }
+  },
 
   directives: { resize },
 
@@ -59,10 +65,10 @@ export default baseMixins.extend({
       type: Number,
       default: 5
     },
-    refLineTypes: {
+    refLineDirections: {
       type: Array,
-      default: () => defaultRefLineTypes,
-      validator: val => new Set(val.filter(h => new Set(defaultRefLineTypes).has(h))).size === val.length
+      default: () => defaultRefLineDirections,
+      validator: val => new Set(val.filter(h => new Set(defaultRefLineDirections).has(h))).size === val.length
     },
   },
 
@@ -115,6 +121,12 @@ export default baseMixins.extend({
     hovered () {
       return this.internalValue[this.hoverIndex]
     },
+    refLinesAllDirections () {
+      return [
+        this.refLineDirections.filter(type => type.indexOf('h') > -1),
+        this.refLineDirections.filter(type => type.indexOf('h') === -1),
+      ]
+    },
   },
 
   methods: {
@@ -149,7 +161,13 @@ export default baseMixins.extend({
       ]
 
       const data = {
-        attrs: {}
+        attrs: {},
+        props: {
+          tag: item.tag,
+          index,
+          appear: this.appear,
+          absolute: this.absolute,
+        },
       }
 
       Object.keys(item).forEach(key => {
@@ -178,16 +196,14 @@ export default baseMixins.extend({
         children = children.map((x, i) => this.genElement(x, i, true))
       }
 
-      let on = {}
       if (this.editable && !disabled) {
-        on['size-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.internalValue[index], name, val[name])
-        })
-        on['position-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.internalValue[index], name, val[name])
-        })
-
         data.on = data.on || {}
+        data.on['size-booted'] = val => Object.keys(val).forEach(name => {
+          this.$set(this.internalValue[index], name, val[name])
+        })
+        data.on['position-booted'] = val => Object.keys(val).forEach(name => {
+          this.$set(this.internalValue[index], name, val[name])
+        })
         data.on['click'] = event => {
           this.internalSelectedIndex = index
           event.preventDefault()
@@ -197,18 +213,7 @@ export default baseMixins.extend({
         data.on['mouseleave'] = () => this.hoverIndex = null
       }
 
-      return this.$createElement(VElement, {
-        attrs: data.attrs,
-        props: {
-          index,
-          appear: this.appear,
-          absolute: this.absolute,
-        },
-        on,
-        scopedSlots: {
-          default: () => this.$createElement(item.tag || 'div', data, children)
-        }
-      })
+      return this.$createElement(VCanvasElement, data, children)
     },
     genElements () {
       return this.value.map((x, i) => this.genElement(x, i, false))
@@ -224,9 +229,11 @@ export default baseMixins.extend({
         }
       })
     },
+    updateSelected (name, val) {
+      this.$set(this.internalValue[this.internalSelectedIndex], name, val)
+    },
     genElementController () {
-      return this.$createElement(VDraggableResizable, {
-        staticClass: 'v-canvas__element-controller',
+      return this.$createElement(VCanvasElementController, {
         props: {
           value: {
             top: this.selected.top || 0,
@@ -244,9 +251,7 @@ export default baseMixins.extend({
           },
           dragging: this.calculateRefLines,
           dragstop: this.clearRefLines,
-          change: val => Object.keys(val).forEach(name => {
-            this.$set(this.internalValue[this.internalSelectedIndex], name, val[name])
-          })
+          change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
         },
       })
     },
@@ -258,56 +263,82 @@ export default baseMixins.extend({
       if (!found) return
       this.items = this.items.filter(i => i._uid !== found._uid)
     },
+    getPointsByValue (value) {
+      const getPoint = {
+        vt: () => value.top,
+        vm: () => value.top + value.height / 2,
+        vb: () => value.top + value.height,
+        hl: () => value.left,
+        hm: () => value.left + value.width / 2,
+        hr: () => value.left + value.width,
+      }
+
+      return this.refLineDirections.reduce((position, key) => {
+        position[key] = getPoint[key]()
+        return position
+      }, {})
+    },
     clearRefLines () {
       this.refLines = []
     },
-    getYPos (value) {
-      return [
-        value.top,
-        value.top + value.height / 2,
-        value.top + value.height
-      ]
-    },
-    getXPos (value) {
-      return [
-        value.left,
-        value.left + value.width / 2,
-        value.left + value.width
-      ]
-    },
     calculateRefLines (value) {
       const threshold = this.threshold + 1
-      const YPos = this.getYPos(value)
-      const XPos = this.getXPos(value)
-      this.refLines = this.items.filter(item => item.index !== this.internalSelectedIndex).reduce((items, item) => {
+      const points = this.getPointsByValue(value)
+      const items = this.items.filter(item => {
+        return item.index !== this.internalSelectedIndex
+      }).reduce((items, item) => {
         const top = Math.min(value.top, item.top)
         const left = Math.min(value.left, item.left)
         const right = Math.max(value.left + value.width, item.left + item.width)
         const bottom = Math.max(value.top + value.height, item.top + item.height)
-
-        this.refLineTypes.forEach(type => {
-          const isCompareX = type.indexOf('h') > -1
-          const comparePos = item.refLines[type]
-          if ((isCompareX ? XPos : YPos).some(pos => Math.abs(pos - comparePos) < threshold)) {
-            if (isCompareX) {
-              items.push({
-                left: comparePos,
-                top,
-                length: bottom - top,
-                vertical: true,
-              })
-            } else {
-              items.push({
-                left,
-                top: comparePos,
-                length: right - left,
-              })
-            }
-          }
+        this.refLinesAllDirections.forEach((directions, index) => {
+          directions.forEach(compareDirection => {
+            const comparePoint = item.refPoints[compareDirection]
+            directions.forEach(direction => {
+              const distance = Math.abs(points[direction] - comparePoint)
+              if (distance < threshold) {
+                let item = {
+                  distance,
+                  direction,
+                  compareDirection,
+                }
+                if (index === 0) {
+                  item = Object.assign(item, {
+                    left: comparePoint,
+                    top,
+                    length: bottom - top,
+                    vertical: true,
+                  })
+                } else {
+                  item = Object.assign(item, {
+                    left,
+                    top: comparePoint,
+                    length: right - left,
+                  })
+                }
+                items.push(item)
+              }
+            })
+          })
         })
-
         return items
-      }, [])
+      }, []).sort((a, b) => {
+        return Math.abs(b.distance - a.distance)
+      })
+
+      // 从所有线中取xy上的两根线
+      const lines = []
+      let i = items.length
+      while (i--) {
+        if (!lines[0] || lines[0].vertical !== items[i].vertical) {
+          lines.push(items[i])
+        }
+        if (lines.length >= 2) {
+          break
+        }
+      }
+      
+      this.refLines = lines
     },
     genRefLines () {
       return this.refLines.map(props => this.$createElement(VLine, { props }))
@@ -330,7 +361,8 @@ export default baseMixins.extend({
       h('div', {
         staticClass: 'v-canvas__wrapper'
       }, [
-        this.$slots.default || !this.hideElements && this.value && this.genElements(),
+        !this.hideElements && this.value && this.genElements(),
+        this.$slots.default
       ]),
       this.internalSelectedIndex !== null && this.genElementController(),
       this.hoverIndex !== null

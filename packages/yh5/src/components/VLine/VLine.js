@@ -26,6 +26,7 @@ export default {
   },
   render (h, { props, data, children }) {
     let styles = {
+      zIndex: 9999,
       backgroundColor: props.color,
     }
 

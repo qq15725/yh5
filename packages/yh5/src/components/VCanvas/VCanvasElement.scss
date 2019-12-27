@@ -1,0 +1,9 @@
+.v-canvas-element {
+  position: relative;
+  &.v-position--absolute {
+    position: absolute;
+  }
+  &.v-position--fixed {
+    position: fixed;
+  }
+}

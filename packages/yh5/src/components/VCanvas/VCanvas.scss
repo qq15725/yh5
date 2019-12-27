@@ -27,6 +27,7 @@
 
   &__hovered {
     position: absolute;
+    box-sizing: border-box;
     border: 1px solid #6CCFFF;
     z-index: 2;
     pointer-events: none;

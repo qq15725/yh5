@@ -1,12 +1,12 @@
 // Scss
-import './VSketchAdsorptionLine.scss'
+import './VSketchDistanceLine.scss'
 
 // Helpers
 import { convertToUnit } from '../../util/helpers'
 import mergeData from '../../util/mergeData'
 
 export default {
-  name: 'v-sketch-adsorption-line',
+  name: 'v-sketch-distance-line',
   functional: true,
   props: {
     tag: {
@@ -24,10 +24,14 @@ export default {
     vertical: Boolean,
     color: {
       type: String,
-      default: '#FF00CC'
+      default: '#0084ff'
     },
   },
-  render (h, { props, data, children }) {
+  render (h, { props, data }) {
+    if (props.length <= 0) {
+      return null
+    }
+
     let styles = {
       borderColor: props.color,
     }
@@ -41,15 +45,28 @@ export default {
     if (length) styles[props.vertical ? 'height' : 'width'] = length
 
     let classes = {
-      'v-sketch-adsorption-line': true,
-      'v-sketch-adsorption-line--absolute': props.absolute,
-      'v-sketch-adsorption-line--fixed': props.fixed,
-      'v-sketch-adsorption-line--vertical': props.vertical,
+      'v-sketch-distance-line': true,
+      'v-sketch-distance-line--absolute': props.absolute,
+      'v-sketch-distance-line--fixed': props.fixed,
+      'v-sketch-distance-line--vertical': props.vertical,
     }
 
     return h(props.tag, mergeData(data, {
       class: classes,
       style: styles,
-    }), children)
+    }), [
+      h('div', {
+        staticClass: 'v-sketch-distance-line--chip',
+      }, [
+        h('div', {
+          staticClass: 'v-sketch-distance-line--chip__content',
+          style: {
+            backgroundColor: props.color,
+          }
+        }, [
+          props.length
+        ])
+      ]),
+    ])
   }
 }

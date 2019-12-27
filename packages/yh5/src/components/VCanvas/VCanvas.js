@@ -208,8 +208,8 @@ export default baseMixins.extend({
             event.preventDefault()
             event.stopPropagation()
           },
-          dragging: this.calculateAdsorptionLines,
-          dragstop: this.clearAdsorptionLines,
+          dragging: this.calculateRefData,
+          dragstop: this.clearRefData,
           change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
         },
       })
@@ -240,6 +240,7 @@ export default baseMixins.extend({
       && this.internalSelectedIndex !== this.hoverIndex
       && this.genHover(),
       this.genAdsorptionLines(),
+      this.genDistanceLines(),
     ])
   }
 })

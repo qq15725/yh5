@@ -4,6 +4,7 @@ import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Components
 import VSketchAdsorptionLine from './VSketchAdsorptionLine'
+import VSketchDistanceLine from './VSketchDistanceLine'
 
 // Default values
 export const defaultAdsorptionLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
@@ -98,12 +99,11 @@ export default baseMixins.extend({
         return points
       }, {})
     },
-    // 清除吸附线
-    clearAdsorptionLines () {
+    clearRefData () {
       this.adsorptionLines = []
+      this.distanceLines = []
     },
-    // 计算吸附线
-    calculateAdsorptionLines (value) {
+    calculateRefData (value) {
       const threshold = this.sketchThreshold + 1
       const points = this.getAdsorptionPointsByValue(value)
       const items = this.items.filter(item => {
@@ -117,38 +117,39 @@ export default baseMixins.extend({
           directions.forEach(compareDirection => {
             const comparePoint = item.refPoints[compareDirection]
             directions.forEach(direction => {
-              const distance = Math.abs(points[direction] - comparePoint)
-              if (distance < threshold) {
-                let item = {
-                  distance,
+              const offsetAmount = Math.abs(points[direction] - comparePoint)
+              if (offsetAmount < threshold) {
+                let attr = {
+                  offsetAmount,
                   direction,
                   compareDirection,
                 }
                 if (index === 0) {
-                  item = Object.assign(item, {
+                  attr = Object.assign(attr, {
                     left: comparePoint,
                     top,
                     length: bottom - top,
                     vertical: true,
+                    compareHeight: item.height,
                   })
                 } else {
-                  item = Object.assign(item, {
+                  attr = Object.assign(attr, {
                     left,
                     top: comparePoint,
                     length: right - left,
+                    compareWidth: item.width,
                   })
                 }
-                items.push(item)
+                items.push(attr)
               }
             })
           })
         })
         return items
       }, []).sort((a, b) => {
-        return Math.abs(b.distance - a.distance)
+        return Math.abs(b.offsetAmount - a.offsetAmount)
       })
 
-      // 从所有线中取xy上的两根线
       const lines = []
       let i = items.length
       while (i--) {
@@ -161,9 +162,28 @@ export default baseMixins.extend({
       }
 
       this.adsorptionLines = lines
+
+      this.distanceLines = lines.map(item => {
+        if (item.vertical) {
+          return {
+            ...item,
+            top: item.top + (value.top === item.top ? value.height : item.compareHeight),
+            length: item.length - value.height - item.compareHeight,
+          }
+        } else {
+          return {
+            ...item,
+            left: item.left + (value.left === item.left ? value.width : item.compareWidth),
+            length: item.length - value.width - item.compareWidth,
+          }
+        }
+      })
     },
     genAdsorptionLines () {
       return this.adsorptionLines.map(props => this.$createElement(VSketchAdsorptionLine, { props }))
+    },
+    genDistanceLines () {
+      return this.distanceLines.map(props => this.$createElement(VSketchDistanceLine, { props }))
     },
   }
 })

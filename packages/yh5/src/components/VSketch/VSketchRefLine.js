@@ -11,7 +11,7 @@ export default {
   props: {
     tag: {
       type: String,
-      default: 'hr',
+      default: 'div',
     },
     absolute: {
       type: Boolean,

@@ -20,6 +20,7 @@ module.exports = {
         ['quickstart', '快速开始'],
         {
           title: '组件',
+          collapsable: false,
           children: [
             ['components/v-canvas', 'VCanvas（画布）'],
             ['components/v-swiper', 'VSwiper（VSwiper）'],
@@ -30,6 +31,7 @@ module.exports = {
         },
         {
           title: '指令',
+          collapsable: false,
           children: [
             ['directives/draggable', 'draggable（可拖拽）'],
           ]

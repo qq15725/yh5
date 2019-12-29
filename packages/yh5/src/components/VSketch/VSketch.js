@@ -172,13 +172,13 @@ export default baseMixins.extend({
       if (item.vertical) {
         if (compare.point === distanceLine.left) return {}
         let length = compare.point > distanceLine.left
-          ? compare.left - distanceLine.left
-          : distanceLine.left - compare.left - compare.width
+          ? compare.left - value.left
+          : value.left + value.width - compare.left - compare.width
         length = length > 0 ? length : 0
         return {
           left: compare.point > distanceLine.left
-            ? distanceLine.left
-            : distanceLine.left - length,
+            ? value.left
+            : compare.left + compare.width,
           top: value.top > compare.top
             ? distanceLine.top
             : distanceLine.top + distanceLine.length,
@@ -188,13 +188,13 @@ export default baseMixins.extend({
       } else {
         if (compare.point === distanceLine.top) return {}
         let length = compare.point > distanceLine.top
-          ? compare.top - distanceLine.top
-          : distanceLine.top - compare.top - compare.height
+          ? compare.top - value.top
+          : value.top + value.height - compare.top - compare.height
         length = length > 0 ? length : 0
         return {
           top: compare.point > distanceLine.top
-            ? distanceLine.top
-            : distanceLine.top - length,
+            ? value.top
+            : compare.top + compare.height,
           left: value.left > compare.left
             ? distanceLine.left
             : distanceLine.left + distanceLine.length,
@@ -274,6 +274,42 @@ export default baseMixins.extend({
           },
           props: Object.assign(item[1], { color: '#0084ff' })
         }, [
+          this.$createElement(VSketchRefLine, {
+            props: item[1].vertical ? {
+              color: '#0084ff',
+              top: 0,
+              left: -3,
+              length: 6,
+            } : {
+              color: '#0084ff',
+              top: -3,
+              left: 0,
+              length: 6,
+              vertical: true,
+            },
+            style: {
+              maxHeight: 'none',
+              maxWidth: 'none',
+            }
+          }),
+          this.$createElement(VSketchRefLine, {
+            props: item[1].vertical ? {
+              color: '#0084ff',
+              top: '100%',
+              left: -3,
+              length: 6,
+            } : {
+              color: '#0084ff',
+              top: -3,
+              left: '100%',
+              length: 6,
+              vertical: true,
+            },
+            style: {
+              maxHeight: 'none',
+              maxWidth: 'none',
+            }
+          }),
           this.$createElement(VSketchLabel, {
             props: {
               color: '#0084ff',

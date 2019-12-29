@@ -1,12 +1,12 @@
 // Scss
-import './VSketchDistanceLine.scss'
+import './VSketchRefLine.scss'
 
 // Helpers
 import { convertToUnit } from '../../util/helpers'
 import mergeData from '../../util/mergeData'
 
 export default {
-  name: 'v-sketch-distance-line',
+  name: 'v-sketch-ref-line',
   functional: true,
   props: {
     tag: {
@@ -20,18 +20,12 @@ export default {
     fixed: Boolean,
     top: [Number, String],
     left: [Number, String],
+    borderStyle: String,
     length: [Number, String],
     vertical: Boolean,
-    color: {
-      type: String,
-      default: '#0084ff'
-    },
+    color: String,
   },
-  render (h, { props, data }) {
-    if (props.length <= 0) {
-      return null
-    }
-
+  render (h, { props, data, children }) {
     let styles = {
       borderColor: props.color,
     }
@@ -43,30 +37,18 @@ export default {
     if (top) styles.top = top
     if (left) styles.left = left
     if (length) styles[props.vertical ? 'height' : 'width'] = length
+    if (props.borderStyle) styles.borderStyle = props.borderStyle
 
     let classes = {
-      'v-sketch-distance-line': true,
-      'v-sketch-distance-line--absolute': props.absolute,
-      'v-sketch-distance-line--fixed': props.fixed,
-      'v-sketch-distance-line--vertical': props.vertical,
+      'v-sketch-ref-line': true,
+      'v-sketch-ref-line--absolute': props.absolute,
+      'v-sketch-ref-line--fixed': props.fixed,
+      'v-sketch-ref-line--vertical': props.vertical,
     }
 
     return h(props.tag, mergeData(data, {
       class: classes,
       style: styles,
-    }), [
-      h('div', {
-        staticClass: 'v-sketch-distance-line--chip',
-      }, [
-        h('div', {
-          staticClass: 'v-sketch-distance-line--chip__content',
-          style: {
-            backgroundColor: props.color,
-          }
-        }, [
-          props.length
-        ])
-      ]),
-    ])
+    }), children)
   }
 }

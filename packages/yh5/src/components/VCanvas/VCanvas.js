@@ -239,8 +239,7 @@ export default baseMixins.extend({
       this.hoverIndex !== null
       && this.internalSelectedIndex !== this.hoverIndex
       && this.genHover(),
-      this.genAdsorptionLines(),
-      this.genDistanceLines(),
+      this.genRefLines(),
     ])
   }
 })

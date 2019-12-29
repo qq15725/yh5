@@ -3,11 +3,11 @@ import mixins from '../../util/mixins'
 import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Components
-import VSketchAdsorptionLine from './VSketchAdsorptionLine'
-import VSketchDistanceLine from './VSketchDistanceLine'
+import VSketchRefLine from './VSketchRefLine'
+import VSketchLabel from './VSketchLabel'
 
 // Default values
-export const defaultAdsorptionLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
+export const defaultRefLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
 
 const baseMixins = mixins(
   RegistrableProvide('sketch'),
@@ -31,10 +31,10 @@ export default baseMixins.extend({
       type: Number,
       default: 5
     },
-    adsorptionLineDirections: {
+    refLineDirections: {
       type: Array,
-      default: () => defaultAdsorptionLineDirections,
-      validator: val => new Set(val.filter(h => new Set(defaultAdsorptionLineDirections).has(h))).size === val.length
+      default: () => defaultRefLineDirections,
+      validator: val => new Set(val.filter(h => new Set(defaultRefLineDirections).has(h))).size === val.length
     },
   },
 
@@ -48,12 +48,7 @@ export default baseMixins.extend({
     return {
       items: [],
       lazySelectedIndex: this.selectedIndex,
-      // 吸附线
-      adsorptionLines: [],
-      // 距离线
-      distanceLines: [],
-      // 间距块
-      spacingBlocks: [],
+      refLines: [],
     }
   },
 
@@ -67,10 +62,10 @@ export default baseMixins.extend({
         this.$emit('update:selected-index', val)
       },
     },
-    adsorptionLinesAllDirections () {
+    refLinesAllDirections () {
       return [
-        this.adsorptionLineDirections.filter(type => type.indexOf('h') > -1),
-        this.adsorptionLineDirections.filter(type => type.indexOf('h') === -1),
+        this.refLineDirections.filter(type => type.indexOf('h') > -1),
+        this.refLineDirections.filter(type => type.indexOf('h') === -1),
       ]
     },
   },
@@ -84,7 +79,7 @@ export default baseMixins.extend({
       if (!found) return
       this.items = this.items.filter(i => i._uid !== found._uid)
     },
-    getAdsorptionPointsByValue (value) {
+    getRefPointsByValue (value) {
       const getPoint = {
         vt: () => value.top,
         vm: () => value.top + value.height / 2,
@@ -94,53 +89,148 @@ export default baseMixins.extend({
         hr: () => value.left + value.width,
       }
 
-      return this.adsorptionLineDirections.reduce((points, key) => {
+      return this.refLineDirections.reduce((points, key) => {
         points[key] = getPoint[key]()
         return points
       }, {})
     },
     clearRefData () {
-      this.adsorptionLines = []
-      this.distanceLines = []
+      this.refLines = []
+    },
+    calculateAdsorptionLine (item, value) {
+      const compare = item.compare
+      const points = item.vertical
+        ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
+        : [compare.left, compare.left + compare.width, value.left, value.left + value.width]
+      const min = Math.min(...points)
+      const max = Math.max(...points)
+      if (item.vertical) {
+        return {
+          left: compare.point,
+          top: min,
+          length: max - min,
+          direction: item.direction,
+          vertical: true,
+        }
+      } else {
+        return {
+          left: min,
+          top: compare.point,
+          length: max - min,
+          direction: item.direction,
+          vertical: false,
+        }
+      }
+    },
+    calculateDistanceLine (item, value) {
+      const compare = item.compare
+      const points = item.vertical
+        ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
+        : [compare.left, compare.left + compare.width, value.left, value.left + value.width]
+      const oriPoints = [].concat(points)
+      points.sort((a, b) => a - b)
+      const min = points[1]
+      const max = points[2]
+      if (![min, max].some(i => ![oriPoints[2], oriPoints[3]].includes(i))) {
+        return null
+      }
+      if (item.vertical) {
+        let point = compare.point
+        const distance = compare.point - (value.left + value.width / 2)
+        if (Math.abs(distance) > this.sketchThreshold + 1) {
+          if (distance > 0) {
+            point -= value.width / 2
+          } else {
+            point += value.width / 2
+          }
+        }
+        return {
+          top: min,
+          left: point,
+          length: max - min,
+          vertical: true,
+        }
+      } else {
+        let point = compare.point
+        const distance = compare.point - (value.top + value.height / 2)
+        if (Math.abs(distance) > this.sketchThreshold + 1) {
+          if (distance > 0) {
+            point -= value.height / 2
+          } else {
+            point += value.height / 2
+          }
+        }
+        return {
+          top: point,
+          left: min,
+          length: max - min,
+        }
+      }
+    },
+    calculateDistanceDashedLine (item, value, distanceLine) {
+      const compare = item.compare
+      if (item.vertical) {
+        if (compare.point === distanceLine.left) return {}
+        let length = compare.point > distanceLine.left
+          ? compare.left - distanceLine.left
+          : distanceLine.left - compare.left - compare.width
+        length = length > 0 ? length : 0
+        return {
+          left: compare.point > distanceLine.left
+            ? distanceLine.left
+            : distanceLine.left - length,
+          top: value.top > compare.top
+            ? distanceLine.top
+            : distanceLine.top + distanceLine.length,
+          length,
+          borderStyle: 'dashed',
+        }
+      } else {
+        if (compare.point === distanceLine.top) return {}
+        let length = compare.point > distanceLine.top
+          ? compare.top - distanceLine.top
+          : distanceLine.top - compare.top - compare.height
+        length = length > 0 ? length : 0
+        return {
+          top: compare.point > distanceLine.top
+            ? distanceLine.top
+            : distanceLine.top - length,
+          left: value.left > compare.left
+            ? distanceLine.left
+            : distanceLine.left + distanceLine.length,
+          length,
+          borderStyle: 'dashed',
+          vertical: true,
+        }
+      }
     },
     calculateRefData (value) {
       const threshold = this.sketchThreshold + 1
-      const points = this.getAdsorptionPointsByValue(value)
+      const points = this.getRefPointsByValue(value)
       const items = this.items.filter(item => {
         return item.index !== this.internalSelectedIndex
       }).reduce((items, item) => {
-        const top = Math.min(value.top, item.top)
-        const left = Math.min(value.left, item.left)
-        const right = Math.max(value.left + value.width, item.left + item.width)
-        const bottom = Math.max(value.top + value.height, item.top + item.height)
-        this.adsorptionLinesAllDirections.forEach((directions, index) => {
+        this.refLinesAllDirections.forEach((directions, index) => {
           directions.forEach(compareDirection => {
-            const comparePoint = item.refPoints[compareDirection]
             directions.forEach(direction => {
-              const offsetAmount = Math.abs(points[direction] - comparePoint)
+              const point = points[direction]
+              const comparePoint = item.refPoints[compareDirection]
+              const offsetAmount = Math.abs(point - comparePoint)
               if (offsetAmount < threshold) {
-                let attr = {
+                items.push({
                   offsetAmount,
                   direction,
-                  compareDirection,
-                }
-                if (index === 0) {
-                  attr = Object.assign(attr, {
-                    left: comparePoint,
-                    top,
-                    length: bottom - top,
-                    vertical: true,
-                    compareHeight: item.height,
-                  })
-                } else {
-                  attr = Object.assign(attr, {
-                    left,
-                    top: comparePoint,
-                    length: right - left,
-                    compareWidth: item.width,
-                  })
-                }
-                items.push(attr)
+                  point,
+                  compare: {
+                    top: item.top,
+                    left: item.left,
+                    height: item.height,
+                    width: item.width,
+                    direction: compareDirection,
+                    point: comparePoint,
+                  },
+                  vertical: index === 0,
+                })
               }
             })
           })
@@ -161,29 +251,42 @@ export default baseMixins.extend({
         }
       }
 
-      this.adsorptionLines = lines
-
-      this.distanceLines = lines.map(item => {
-        if (item.vertical) {
-          return {
-            ...item,
-            top: item.top + (value.top === item.top ? value.height : item.compareHeight),
-            length: item.length - value.height - item.compareHeight,
-          }
-        } else {
-          return {
-            ...item,
-            left: item.left + (value.left === item.left ? value.width : item.compareWidth),
-            length: item.length - value.width - item.compareWidth,
-          }
-        }
+      this.refLines = lines.map(item => {
+        const distanceLine = this.calculateDistanceLine(item, value)
+        return [
+          this.calculateAdsorptionLine(item, value),
+          distanceLine,
+          distanceLine
+            ? this.calculateDistanceDashedLine(item, value, distanceLine)
+            : distanceLine,
+        ]
       })
     },
-    genAdsorptionLines () {
-      return this.adsorptionLines.map(props => this.$createElement(VSketchAdsorptionLine, { props }))
-    },
-    genDistanceLines () {
-      return this.distanceLines.map(props => this.$createElement(VSketchDistanceLine, { props }))
+    genRefLines () {
+      return this.refLines.map(item => [
+        item[0] && this.$createElement(VSketchRefLine, {
+          props: Object.assign(item[0], { color: '#FF00CC' })
+        }),
+        item[1] && this.$createElement(VSketchRefLine, {
+          style: {
+            overflow: 'visible',
+            zIndex: 9991,
+          },
+          props: Object.assign(item[1], { color: '#0084ff' })
+        }, [
+          this.$createElement(VSketchLabel, {
+            props: {
+              color: '#0084ff',
+              vertical: item[1].vertical,
+            }
+          }, [
+            item[1].length
+          ])
+        ]),
+        item[2] && this.$createElement(VSketchRefLine, {
+          props: Object.assign(item[2], { color: '#0084ff' })
+        }),
+      ])
     },
   }
 })

@@ -1,0 +1,25 @@
+.v-sketch-label {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  &--vertical {
+    left: auto;
+    top: 0;
+  }
+
+  &__chip {
+    border-radius: 12px;
+    padding: 2px 4px;
+    color: white;
+    font-size: 12px;
+    margin: 2px;
+    min-width: 20px;
+    text-align: center;
+  }
+}

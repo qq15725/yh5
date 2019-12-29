@@ -1,6 +1,5 @@
 import VSketch from './VSketch'
-import VSketchAdsorptionLine from './VSketchAdsorptionLine'
 
-export { VSketch, VSketchAdsorptionLine }
+export { VSketch }
 
 export default VSketch

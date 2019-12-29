@@ -1,7 +1,7 @@
 module.exports = {
   base: '/yh5/',
-  title: 'yh5',
-  description: 'yh5',
+  title: 'Yh5',
+  description: '快速搭建中后台(hpaPaaS平台)可视化能力的常用组件库',
   dest: '../../docs',
   port: 2233,
   themeConfig: {

@@ -1,5 +1,5 @@
 ---
 home: true
-actionText: 前往 →
+actionText: 快速开始
 actionLink: /lib/quickstart
 ---

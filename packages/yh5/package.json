@@ -16,7 +16,11 @@
     "build": "node build/build-lib.js"
   },
   "keywords": [
-    "yh5"
+    "vue",
+    "yh5",
+    "sketch",
+    "draggable",
+    "resizable"
   ],
   "license": "MIT",
   "repository": {

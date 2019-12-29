@@ -1,8 +1,8 @@
 module.exports = {
-  base: '/yh5/packages/docs/dist/',
+  base: '/yh5/',
   title: 'yh5',
   description: 'yh5',
-  dest: './dist',
+  dest: '../../docs',
   port: 2233,
   themeConfig: {
     nav: [

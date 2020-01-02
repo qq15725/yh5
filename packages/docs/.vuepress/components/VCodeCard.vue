@@ -59,7 +59,9 @@
       </v-card>
     </v-expand-transition>
 
-    <slot></slot>
+    <ClientOnly>
+      <slot></slot>
+    </ClientOnly>
   </v-card>
 </template>
 

@@ -25,9 +25,13 @@
   // 动画
   import 'animate.css'
 
+  import { VSwiper } from 'yh5'
   import VSwipersForm from './form'
 
   export default {
+    components: {
+      VSwiper,
+    },
     data () {
       return {
         paused: false,

@@ -2,9 +2,7 @@
 
 <v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/swipers/usage.vue">
 
-<ClientOnly>
-  <examples-swipers-usage></examples-swipers-usage>
-</ClientOnly>
+<examples-swipers-usage></examples-swipers-usage>
 
 <div slot="template">
 
@@ -107,10 +105,6 @@
   import VSwipersForm from './form'
 
   export default {
-    components: {
-      VSwipersForm,
-    },
-
     data () {
       return {
         paused: false,
@@ -280,7 +274,7 @@
                 class: 'animated fadeIn slow',
               },
               {
-                tag: 'v-swipers-form',
+                tag: VSwipersForm,
                 top: 140 * 1.2,
                 left: 40 * 1.2,
                 width: 240 * 1.2,

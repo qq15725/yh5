@@ -16,12 +16,7 @@
 </template>
 
 <script>
-  import { VResizable } from 'yh5/src'
-
   export default {
-    components: {
-      VResizable
-    },
     data () {
       return {
         data: {

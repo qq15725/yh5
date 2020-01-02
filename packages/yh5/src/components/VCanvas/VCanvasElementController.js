@@ -1,9 +1,11 @@
+// Scss
+import './VCanvasElementController.scss'
+
 // Helpers
 import mixins from '../../util/mixins'
 
 // Components
 import VDraggableResizable from '../VDraggableResizable'
-
 
 // Mixins
 import { inject as RegistrableInject } from '../../mixins/registrable'
@@ -67,7 +69,7 @@ export default baseMixins.extend({
   render (h) {
     const element = VDraggableResizable.options.render.call(this, h)
 
-    element.data.staticClass += ' v-canvas__element-controller'
+    element.data.staticClass += ' v-canvas-element-controller'
 
     return element
   }

@@ -1,4 +1,9 @@
-<v-directive-draggable-demo></v-directive-draggable-demo>
+### 使用
+
+<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/draggables/directive.vue">
+<examples-draggables-directive></examples-draggables-directive>
+
+<div slot="template">
 
 ```html
 <template>
@@ -15,6 +20,25 @@
   </div>
 </template>
 
+<style scoped>
+  .drag-me {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    border: 1px solid #DDD;
+    background-color: white;
+    text-align: center;
+    line-height: 100px;
+    cursor: move;
+  }
+</style>
+```  
+  
+</div>
+
+<div slot="script">
+
+```html
 <script>
   import { Draggable } from 'yh5'
 
@@ -49,17 +73,7 @@
     }
   }
 </script>
+```  
 
-<style scoped>
-  .drag-me {
-    position: absolute;
-    height: 100px;
-    width: 100px;
-    border: 1px solid #DDD;
-    background-color: white;
-    text-align: center;
-    line-height: 100px;
-    cursor: move;
-  }
-</style>
-```
+</div>
+</v-code-card>

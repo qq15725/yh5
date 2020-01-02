@@ -7,7 +7,7 @@ import VSketchRefLine from './VSketchRefLine'
 import VSketchLabel from './VSketchLabel'
 
 // Default values
-export const defaultRefLineDirections = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
+export const REFLINE_DIRECTIONS = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
 
 const baseMixins = mixins(
   RegistrableProvide('sketch'),
@@ -33,8 +33,8 @@ export default baseMixins.extend({
     },
     refLineDirections: {
       type: Array,
-      default: () => defaultRefLineDirections,
-      validator: val => new Set(val.filter(h => new Set(defaultRefLineDirections).has(h))).size === val.length
+      default: () => REFLINE_DIRECTIONS,
+      validator: val => new Set(val.filter(h => new Set(REFLINE_DIRECTIONS).has(h))).size === val.length
     },
   },
 
@@ -61,6 +61,9 @@ export default baseMixins.extend({
         this.lazySelectedIndex = val
         this.$emit('update:selected-index', val)
       },
+    },
+    selected () {
+      return this.items.find(item => item.index === this.internalSelectedIndex)
     },
     refLinesAllDirections () {
       return [
@@ -97,7 +100,8 @@ export default baseMixins.extend({
     clearRefData () {
       this.refLines = []
     },
-    calculateAdsorptionLine (item, value) {
+    calculateAdsorptionLine (item) {
+      const value = this.selected
       const compare = item.compare
       const points = item.vertical
         ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
@@ -122,18 +126,31 @@ export default baseMixins.extend({
         }
       }
     },
-    calculateDistanceLine (item, value) {
+    calculateDistanceLine (item) {
+      const value = this.selected
       const compare = item.compare
       const points = item.vertical
         ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
         : [compare.left, compare.left + compare.width, value.left, value.left + value.width]
       const oriPoints = [].concat(points)
       points.sort((a, b) => a - b)
-      const min = points[1]
-      const max = points[2]
-      if (![min, max].some(i => ![oriPoints[2], oriPoints[3]].includes(i))) {
-        return null
+      let min = points[0]
+      let max = points[3]
+      if (min === oriPoints[2]) {
+        if (max === oriPoints[3]) return null
+        const index = points.indexOf(oriPoints[3])
+        min = points[index]
+        max = points[index + 1]
+      } else if (max === oriPoints[3]) {
+        if (min === oriPoints[2]) return null
+        const index = points.indexOf(oriPoints[2])
+        min = points[index - 1]
+        max = points[index]
+      } else {
+        min = points[1]
+        max = points[2]
       }
+      if (![min, max].some(i => ![oriPoints[2], oriPoints[3]].includes(i))) return null
       if (item.vertical) {
         let point = compare.point
         const distance = compare.point - (value.left + value.width / 2)
@@ -167,10 +184,12 @@ export default baseMixins.extend({
         }
       }
     },
-    calculateDistanceDashedLine (item, value, distanceLine) {
+    calculateDistanceDashedLine (item, distanceLine) {
+      if (!distanceLine) return null
+      const value = this.selected
       const compare = item.compare
       if (item.vertical) {
-        if (compare.point === distanceLine.left) return {}
+        if (compare.point === distanceLine.left) return null
         let length = compare.point > distanceLine.left
           ? compare.left - value.left
           : value.left + value.width - compare.left - compare.width
@@ -186,7 +205,7 @@ export default baseMixins.extend({
           borderStyle: 'dashed',
         }
       } else {
-        if (compare.point === distanceLine.top) return {}
+        if (compare.point === distanceLine.top) return null
         let length = compare.point > distanceLine.top
           ? compare.top - value.top
           : value.top + value.height - compare.top - compare.height
@@ -252,13 +271,11 @@ export default baseMixins.extend({
       }
 
       this.refLines = lines.map(item => {
-        const distanceLine = this.calculateDistanceLine(item, value)
+        const distanceLine = this.calculateDistanceLine(item)
         return [
-          this.calculateAdsorptionLine(item, value),
+          this.calculateAdsorptionLine(item),
           distanceLine,
-          distanceLine
-            ? this.calculateDistanceDashedLine(item, value, distanceLine)
-            : distanceLine,
+          this.calculateDistanceDashedLine(item, distanceLine),
         ]
       })
     },

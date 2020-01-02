@@ -30,6 +30,16 @@ module.exports = {
           ]
         },
         {
+          title: '示例',
+          collapsable: false,
+          children: [
+            ['examples/poster', '图片海报制作'],
+            ['examples/swiper-poster', '轮播海报制作'],
+            ['examples/form-page', '表单页制作'],
+            ['examples/template-page', '微页面制作'],
+          ]
+        },
+        {
           title: '指令',
           collapsable: false,
           children: [

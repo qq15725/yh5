@@ -53,6 +53,14 @@ export default baseMixins.extend({
     }
   },
 
+  watch: {
+    parent () {
+      this.$nextTick(() => {
+        [this.parentWidth, this.parentHeight] = this.getParentSize()
+      })
+    },
+  },
+
   mounted () {
     [this.parentWidth, this.parentHeight] = this.getParentSize()
   },
@@ -82,7 +90,7 @@ export default baseMixins.extend({
   methods: {
     getParentSize () {
       if (!this.parent) return [null, null]
-      const target = typeof this.parent === 'string' ? this.parent : this.$el.parentNode
+      const target = typeof this.parent === 'string' ? document.querySelector(this.parent) : this.$el.parentNode
       const style = window.getComputedStyle(target, null)
       return [
         parseInt(style.getPropertyValue('width'), 10),

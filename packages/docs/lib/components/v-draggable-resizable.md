@@ -1,4 +1,9 @@
-<v-draggable-resizable-demo></v-draggable-resizable-demo>
+### 使用
+
+<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/draggable-resizable/usage.vue">
+<examples-draggable-resizable-usage></examples-draggable-resizable-usage>
+
+<div slot="template">
 
 ```html
 <template>
@@ -15,6 +20,10 @@
         :max-height="200"
         parent
         :aspect-ratio="1"
+        @dragging="onDragging"
+        @dragstop="onDragstop"
+        @resizing="onResizing"
+        @resizestop="onResizestop"
       >
         <template #default="{ style, value, active }">
           <div :style="style" class="box">拖拽、调整大小</div>
@@ -39,26 +48,6 @@
   </div>
 </template>
 
-<script>
-  import { VDraggableResizable } from 'yh5'
-
-  export default {
-    components: {
-      VDraggableResizable
-    },
-    data () {
-      return {
-        data: {
-          left: 0,
-          top: 50,
-          width: 150,
-          height: 150,
-        }
-      }
-    }
-  }
-</script>
-
 <style scoped>
   .container {
     position: relative;
@@ -78,4 +67,43 @@
     align-items: center;
   }
 </style>
-```
+```  
+  
+</div>
+
+<div slot="script">
+
+```html
+<script>
+  export default {
+    methods: {
+      onDragging () {
+        console.log('onDragging')
+      },
+      onDragstop () {
+        console.log('onDragstop')
+      },
+      onResizing () {
+        console.log('onResizing')
+      },
+      onResizestop () {
+        console.log('onResizestop')
+      },
+    },
+
+    data () {
+      return {
+        data: {
+          left: 0,
+          top: 50,
+          width: 150,
+          height: 150,
+        }
+      }
+    }
+  }
+</script>
+```  
+
+</div>
+</v-code-card>

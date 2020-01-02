@@ -8,12 +8,6 @@
   </form>
 </template>
 
-<script>
-  export default {
-    name: 'v-demo-form'
-  }
-</script>
-
 <style scoped>
   .input {
     box-sizing: border-box;

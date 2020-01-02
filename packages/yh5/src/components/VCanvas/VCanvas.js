@@ -5,9 +5,10 @@ import mixins from '../../util/mixins'
 import { convertToUnit, isNumber } from '../../util/helpers'
 
 // Components
+import VSketch from '../VSketch'
 import VCanvasElement from './VCanvasElement'
 import VCanvasElementController from './VCanvasElementController'
-import VSketch from '../VSketch'
+import VDraggable from '../VDraggable'
 
 // Mixins
 import Proxyable from '../../mixins/proxyable'
@@ -41,14 +42,11 @@ export default baseMixins.extend({
       default: () => [],
     },
     editable: Boolean,
-    appear: {
-      type: Boolean,
-      default: true
-    },
-    absolute: {
-      type: Boolean,
-      default: true
-    },
+    resizable: Boolean,
+    appear: Boolean,
+    absolute: Boolean,
+    fixed: Boolean,
+    parent: Boolean,
     referenceWidth: Number,
     referenceHeight: Number,
     background: String,
@@ -80,9 +78,6 @@ export default baseMixins.extend({
   },
 
   computed: {
-    selected () {
-      return this.internalValue[this.internalSelectedIndex]
-    },
     hovered () {
       return this.internalValue[this.hoverIndex]
     },
@@ -119,15 +114,17 @@ export default baseMixins.extend({
         'tag', 'children'
       ]
 
-      const data = {
+      let data = {
         attrs: {},
         props: {
           tag: item.tag,
           index,
           appear: this.appear,
-          absolute: this.absolute,
         },
       }
+
+      if (this.absolute) data.props.absolute = true
+      if (this.fixed) data.props.fixed = true
 
       Object.keys(item).forEach(key => {
         if (fields.includes(key)) {
@@ -191,6 +188,35 @@ export default baseMixins.extend({
     updateSelected (name, val) {
       this.$set(this.internalValue[this.internalSelectedIndex], name, val)
     },
+    genResizeController (axis) {
+      let children
+      if (axis === 'x') {
+        children = this.width
+      } else if (axis === 'y') {
+        children = this.height
+      }
+
+      return this.$createElement(VDraggable, {
+        props: {
+          value: {
+            top: this.height,
+            left: this.width,
+          },
+          axis,
+        },
+        on: {
+          change: ({ top, left }) => this.$emit('size-change', {
+            height: top,
+            width: left,
+          })
+        },
+        scopedSlots: {
+          default: () => this.$createElement('div', {
+            staticClass: `v-canvas__resize v-canvas__resize-${axis}`
+          }, children)
+        }
+      })
+    },
     genElementController () {
       return this.$createElement(VCanvasElementController, {
         props: {
@@ -202,6 +228,7 @@ export default baseMixins.extend({
           },
           minWidth: 30,
           minHeight: 30,
+          parent: this.parent,
         },
         on: {
           click: event => {
@@ -217,6 +244,35 @@ export default baseMixins.extend({
   },
 
   render (h) {
+    const children = []
+
+    if (this.background) children.push(this.genBackground())
+
+    children.push(
+      h('div', {
+        staticClass: 'v-canvas__wrapper'
+      }, [
+        !this.hideElements && this.value && this.genElements(),
+        this.$slots.default
+      ])
+    )
+
+    if (this.editable) {
+      if (this.internalSelectedIndex !== null) children.push(this.genElementController())
+
+      if (this.hoverIndex !== null && this.internalSelectedIndex !== this.hoverIndex) {
+        children.push(this.genHover())
+      }
+
+      children.push(this.genRefLines())
+
+      if (this.resizable && this.height && this.width) {
+        children.push(this.genResizeController('x'))
+        children.push(this.genResizeController('y'))
+        children.push(this.genResizeController('both'))
+      }
+    }
+
     return h('div', {
       staticClass: 'v-canvas',
       style: this.measurableStyles,
@@ -227,19 +283,6 @@ export default baseMixins.extend({
           this.resizeWrapper.offsetHeight = this.$el.offsetHeight
         },
       }],
-    }, [
-      this.background && this.genBackground(),
-      h('div', {
-        staticClass: 'v-canvas__wrapper'
-      }, [
-        !this.hideElements && this.value && this.genElements(),
-        this.$slots.default
-      ]),
-      this.internalSelectedIndex !== null && this.genElementController(),
-      this.hoverIndex !== null
-      && this.internalSelectedIndex !== this.hoverIndex
-      && this.genHover(),
-      this.genRefLines(),
-    ])
+    }, children)
   }
 })

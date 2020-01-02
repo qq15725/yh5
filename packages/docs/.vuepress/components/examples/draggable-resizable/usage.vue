@@ -41,13 +41,7 @@
 </template>
 
 <script>
-  import { VDraggableResizable } from 'yh5/src'
-
   export default {
-    components: {
-      VDraggableResizable
-    },
-
     methods: {
       onDragging () {
         console.log('onDragging')

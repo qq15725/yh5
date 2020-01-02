@@ -25,15 +25,9 @@
   // 动画
   import 'animate.css'
 
-  import VDemoForm from './VDemoForm'
-  import { VSwiper } from 'yh5/src'
+  import VSwipersForm from './form'
 
   export default {
-    components: {
-      VSwiper,
-      VDemoForm,
-    },
-
     data () {
       return {
         paused: false,
@@ -45,11 +39,11 @@
         },
         data: [
           {
-            background: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
+            background: require('../../../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
             value: [
               {
                 tag: 'img',
-                src: require('../assets/FtU_ut-TVuxydRE_R4MCgw0Ab-RE.png'),
+                src: require('../../../assets/FtU_ut-TVuxydRE_R4MCgw0Ab-RE.png'),
                 top: 100,
                 left: (375 - 31 * 1.2) / 2,
                 width: 31 * 1.2,
@@ -96,7 +90,7 @@
                 children: [
                   {
                     tag: 'img',
-                    src: require('../assets/FjfaL3kHpTWemywA-XM508a1uGBI.png'),
+                    src: require('../../../assets/FjfaL3kHpTWemywA-XM508a1uGBI.png'),
                     top: 0,
                     left: (375 - 92 * 1.2) / 2,
                     width: 92 * 1.2,
@@ -114,7 +108,7 @@
                 children: [
                   {
                     tag: 'img',
-                    src: require('../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
+                    src: require('../../../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
                     top: 0,
                     left: (375 - 205.5 * 1.2) / 2,
                     width: 205.5 * 1.2,
@@ -124,7 +118,7 @@
               },
               {
                 tag: 'img',
-                src: require('../assets/Fi-5mH7-62dKUjdROniYhze9Y2H6.png'),
+                src: require('../../../assets/Fi-5mH7-62dKUjdROniYhze9Y2H6.png'),
                 top: 460,
                 left: (375 - 34.5) / 2,
                 width: 34.5 * 1.2,
@@ -163,11 +157,11 @@
             ],
           },
           {
-            background: require('../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
+            background: require('../../../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
             value: [
               {
                 tag: 'img',
-                src: require('../assets/o_1dr89oma6nrm130lam14o6ji19.png'),
+                src: require('../../../assets/o_1dr89oma6nrm130lam14o6ji19.png'),
                 style: {
                   boxShadow: 'rgba(247, 217, 155, 0.7) 1px 0px 5px'
                 },
@@ -179,7 +173,7 @@
               },
               {
                 tag: 'img',
-                src: require('../assets/FjBufBlrVezvAGcQB7CslClJxW4S.png'),
+                src: require('../../../assets/FjBufBlrVezvAGcQB7CslClJxW4S.png'),
                 top: 108 * 1.2,
                 left: (375 - 188 * 1.2) / 2,
                 width: 188 * 1.2,
@@ -203,7 +197,7 @@
                 class: 'animated fadeIn slow',
               },
               {
-                tag: 'v-demo-form',
+                tag: VSwipersForm,
                 top: 140 * 1.2,
                 left: 40 * 1.2,
                 width: 240 * 1.2,
@@ -212,7 +206,7 @@
               },
               {
                 tag: 'img',
-                src: require('../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
+                src: require('../../../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
                 top: 90 * 1.2,
                 left: (375 - 205.5) / 2,
                 width: 205.5,
@@ -221,7 +215,7 @@
               },
               {
                 tag: 'img',
-                src: require('../assets/Fi-5mH7-62dKUjdROniYhze9Y2H6.png'),
+                src: require('../../../assets/Fi-5mH7-62dKUjdROniYhze9Y2H6.png'),
                 top: 500,
                 left: (375 - 34.5) / 2,
                 width: 34.5 * 1.2,
@@ -274,7 +268,7 @@
     height: 30px;
     z-index: 10;
     border-radius: 15px;
-    background-image: url(../assets/music-button.svg);
+    background-image: url(../../../assets/music-button.svg);
     background-size: contain;
     background-repeat: no-repeat;
   }
@@ -286,7 +280,7 @@
     bottom: 20px;
     left: calc(50% - 12px);
     z-index: 10;
-    background-image: url(../assets/up-arrow.png);
+    background-image: url(../../../assets/up-arrow.png);
     background-size: contain;
     background-repeat: no-repeat;
   }

@@ -1,4 +1,9 @@
-<v-resizable-demo></v-resizable-demo>
+### 使用
+
+<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/resizables/usage.vue">
+<examples-resizables-usage></examples-resizables-usage>
+
+<div slot="template">
 
 ```html
 <template>
@@ -18,13 +23,23 @@
   </div>
 </template>
 
-<script>
-  import { VResizable } from 'yh5'
+<style scoped>
+  .box {
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+```  
+  
+</div>
 
+<div slot="script">
+
+```html
+<script>
   export default {
-    components: {
-      VResizable
-    },
     data () {
       return {
         data: {
@@ -35,13 +50,7 @@
     }
   }
 </script>
+```  
 
-<style scoped>
-  .box {
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-</style>
-```
+</div>
+</v-code-card>

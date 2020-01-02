@@ -1,12 +1,3 @@
-### 使用
-
-<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/canvas/usage.vue">
-
-<examples-canvas-usage></examples-canvas-usage>
-
-<div slot="template">
-
-```html
 <template>
   <div>
     <v-row no-gutters>
@@ -45,13 +36,7 @@
     </v-card>
   </div>
 </template>
-```  
-  
-</div>
 
-<div slot="script">
-
-```html
 <script>
   export default {
     data () {
@@ -123,7 +108,3 @@
     }
   }
 </script>
-```  
-
-</div>
-</v-code-card>

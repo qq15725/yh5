@@ -107,6 +107,8 @@ export default baseMixins.extend({
             style,
             attrs,
             props: {
+              appear: true,
+              absolute: true,
               referenceWidth: this.referenceWidth,
               referenceHeight: this.referenceHeight,
               background,

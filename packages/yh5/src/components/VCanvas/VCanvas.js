@@ -16,6 +16,7 @@ import Measurable from '../../mixins/measurable'
 
 // Directives
 import resize from '../../directives/resize'
+import intersect from '../../directives/intersect'
 
 const baseMixins = mixins(
   Proxyable,
@@ -34,7 +35,10 @@ export default baseMixins.extend({
     }
   },
 
-  directives: { resize },
+  directives: {
+    resize,
+    intersect,
+  },
 
   props: {
     value: {
@@ -44,6 +48,7 @@ export default baseMixins.extend({
     editable: Boolean,
     resizable: Boolean,
     appear: Boolean,
+    lazy: Boolean,
     absolute: Boolean,
     fixed: Boolean,
     parent: Boolean,
@@ -150,6 +155,26 @@ export default baseMixins.extend({
 
       if (Array.isArray(children)) {
         children = children.map((x, i) => this.genElement(x, i, true))
+      }
+
+      const directives = []
+
+      if (!disabled && this.lazy) {
+        directives.push({
+          name: 'intersect',
+          value: entries => {
+            this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
+          },
+        })
+      }
+
+      data.directives = directives
+
+      if (!disabled && this.lazy && this.internalValue[index].hide) {
+        data.props.tag = 'div'
+        delete data.class
+        delete data.style
+        return this.$createElement(VCanvasElement, data)
       }
 
       if (this.editable && !disabled) {

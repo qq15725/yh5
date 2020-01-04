@@ -35,7 +35,8 @@ export default baseMixins.extend({
       type: Array,
       default: () => ([0])
     },
-    disableSlideReload: Boolean
+    disableSlideReload: Boolean,
+    lazy: Boolean,
   },
 
   data () {
@@ -112,7 +113,8 @@ export default baseMixins.extend({
               referenceWidth: this.referenceWidth,
               referenceHeight: this.referenceHeight,
               background,
-              hideElements: this.internalIndexes.indexOf(index) === -1,
+              lazy: this.lazy,
+              hideElements: !this.lazy && this.internalIndexes.indexOf(index) === -1,
             },
             on,
           })

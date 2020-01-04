@@ -164,6 +164,10 @@ export default baseMixins.extend({
           name: 'intersect',
           value: entries => {
             this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
+            this.$emit('intersect', {
+              index,
+              isIntersecting: entries[0].isIntersecting
+            })
           },
         })
       }

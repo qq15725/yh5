@@ -157,18 +157,16 @@ export default baseMixins.extend({
         children = children.map((x, i) => this.genElement(x, i, true))
       }
 
-      const directives = []
+      data.directives = data.directives || []
 
       if (!disabled && this.lazy) {
-        directives.push({
+        data.directives.push({
           name: 'intersect',
           value: entries => {
             this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
           },
         })
       }
-
-      data.directives = directives
 
       if (!disabled && this.lazy && this.internalValue[index].hide) {
         data.props.tag = 'div'

@@ -1,15 +1,27 @@
+// Scss
+import './VSketch.scss'
+
 // Helpers
 import mixins from '../../util/mixins'
 import { provide as RegistrableProvide } from '../../mixins/registrable'
+import { convertToUnit } from '../../util/helpers'
+
+// Mixins
+import Proxyable from '../../mixins/proxyable'
+import Measurable from '../../mixins/measurable'
 
 // Components
-import VSketchRefLine from './VSketchRefLine'
+import VRefLine from '../VRefLine'
+import VDraggable from '../VDraggable'
 import VSketchLabel from './VSketchLabel'
+import VSketchElementController from './VSketchElementController'
 
 // Default values
 export const REFLINE_DIRECTIONS = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
 
 const baseMixins = mixins(
+  Measurable,
+  Proxyable,
   RegistrableProvide('sketch'),
 )
 
@@ -23,11 +35,7 @@ export default baseMixins.extend({
   },
 
   props: {
-    selectedIndex: {
-      type: Number,
-      default: null,
-    },
-    sketchThreshold: {
+    adsorptionThreshold: {
       type: Number,
       default: 5
     },
@@ -38,32 +46,26 @@ export default baseMixins.extend({
     },
   },
 
-  watch: {
-    selectedIndex (val) {
-      this.lazySelectedIndex = val
-    },
-  },
-
   data () {
     return {
       items: [],
-      lazySelectedIndex: this.selectedIndex,
       refLines: [],
+      hoverIndex: null,
+      selectedIndex: null,
     }
   },
 
   computed: {
-    internalSelectedIndex: {
-      get () {
-        return this.lazySelectedIndex
-      },
-      set (val) {
-        this.lazySelectedIndex = val
-        this.$emit('update:selected-index', val)
-      },
+    classes () {
+      return {
+        'v-sketch': true,
+      }
     },
     selected () {
-      return this.items.find(item => item.index === this.internalSelectedIndex)
+      return this.items.find(item => item.index === this.selectedIndex)
+    },
+    hovered () {
+      return this.items.find(item => item.index === this.hoverIndex)
     },
     refLinesAllDirections () {
       return [
@@ -98,7 +100,7 @@ export default baseMixins.extend({
       }, {})
     },
     clearRefData () {
-      this.refLines = []
+      // this.refLines = []
     },
     calculateAdsorptionLine (item) {
       const value = this.selected
@@ -154,7 +156,7 @@ export default baseMixins.extend({
       if (item.vertical) {
         let point = compare.point
         const distance = compare.point - (value.left + value.width / 2)
-        if (Math.abs(distance) > this.sketchThreshold + 1) {
+        if (Math.abs(distance) > this.adsorptionThreshold + 1) {
           if (distance > 0) {
             point -= value.width / 2
           } else {
@@ -170,7 +172,7 @@ export default baseMixins.extend({
       } else {
         let point = compare.point
         const distance = compare.point - (value.top + value.height / 2)
-        if (Math.abs(distance) > this.sketchThreshold + 1) {
+        if (Math.abs(distance) > this.adsorptionThreshold + 1) {
           if (distance > 0) {
             point -= value.height / 2
           } else {
@@ -224,10 +226,10 @@ export default baseMixins.extend({
       }
     },
     calculateRefData (value) {
-      const threshold = this.sketchThreshold + 1
+      const threshold = this.adsorptionThreshold + 1
       const points = this.getRefPointsByValue(value)
       const items = this.items.filter(item => {
-        return item.index !== this.internalSelectedIndex
+        return item.index !== this.selectedIndex
       }).reduce((items, item) => {
         this.refLinesAllDirections.forEach((directions, index) => {
           directions.forEach(compareDirection => {
@@ -279,19 +281,30 @@ export default baseMixins.extend({
         ]
       })
     },
+    genHover () {
+      return this.$createElement('div', {
+        staticClass: 'v-sketch__hovered',
+        style: {
+          top: convertToUnit(this.hovered.top || 0),
+          left: convertToUnit(this.hovered.left || 0),
+          width: convertToUnit(this.hovered.width || 0),
+          height: convertToUnit(this.hovered.height || 0),
+        }
+      })
+    },
     genRefLines () {
       return this.refLines.map(item => [
-        item[0] && this.$createElement(VSketchRefLine, {
+        item[0] && this.$createElement(VRefLine, {
           props: Object.assign(item[0], { color: '#FF00CC' })
         }),
-        item[1] && this.$createElement(VSketchRefLine, {
+        item[1] && this.$createElement(VRefLine, {
           style: {
             overflow: 'visible',
             zIndex: 9991,
           },
           props: Object.assign(item[1], { color: '#0084ff' })
         }, [
-          this.$createElement(VSketchRefLine, {
+          this.$createElement(VRefLine, {
             props: item[1].vertical ? {
               color: '#0084ff',
               top: 0,
@@ -309,7 +322,7 @@ export default baseMixins.extend({
               maxWidth: 'none',
             }
           }),
-          this.$createElement(VSketchRefLine, {
+          this.$createElement(VRefLine, {
             props: item[1].vertical ? {
               color: '#0084ff',
               top: '100%',
@@ -336,10 +349,66 @@ export default baseMixins.extend({
             item[1].length
           ])
         ]),
-        item[2] && this.$createElement(VSketchRefLine, {
+        item[2] && this.$createElement(VRefLine, {
           props: Object.assign(item[2], { color: '#0084ff' })
         }),
       ])
+    },
+    updateSelected (name, val) {
+      this.$set(this.internalValue[this.selectedIndex], name, val)
+    },
+    genElementController () {
+      return this.$createElement(VSketchElementController, {
+        props: {
+          value: {
+            top: this.selected.top || 0,
+            left: this.selected.left || 0,
+            width: this.selected.width || 10,
+            height: this.selected.height || 10,
+          },
+          minWidth: 30,
+          minHeight: 30,
+          parent: this.parent,
+        },
+        on: {
+          click: event => {
+            event.preventDefault()
+            event.stopPropagation()
+          },
+          dragging: this.calculateRefData,
+          dragstop: this.clearRefData,
+          change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
+        },
+      })
+    },
+    genResizeController (axis) {
+      let children
+      if (axis === 'x') {
+        children = this.width
+      } else if (axis === 'y') {
+        children = this.height
+      }
+
+      return this.$createElement(VDraggable, {
+        props: {
+          value: {
+            top: this.height,
+            left: this.width,
+          },
+          axis,
+        },
+        on: {
+          change: ({ top, left }) => this.$emit('size-change', {
+            height: top,
+            width: left,
+          })
+        },
+        scopedSlots: {
+          default: () => this.$createElement('div', {
+            staticClass: `v-sketch__resize v-sketch__resize-${axis}`
+          }, children)
+        }
+      })
     },
   }
 })

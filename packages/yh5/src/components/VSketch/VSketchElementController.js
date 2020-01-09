@@ -1,5 +1,5 @@
 // Scss
-import './VCanvasElementController.scss'
+import './VSketchElementController.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
@@ -12,16 +12,16 @@ import { inject as RegistrableInject } from '../../mixins/registrable'
 
 const baseMixins = mixins(
   VDraggableResizable,
-  RegistrableInject('canvas'),
+  RegistrableInject('sketch'),
 )
 
 export default baseMixins.extend({
-  name: 'v-canvas-element-controller',
+  name: 'v-sketch-element-controller',
 
   methods: {
     handleAdsorption (value) {
-      if (this.canvas.refLines.length) {
-        this.canvas.refLines.forEach(([item]) => {
+      if (this.sketch.refLines.length) {
+        this.sketch.refLines.forEach(([item]) => {
           switch (item.direction) {
             case 'hl':
               value.left = item.left
@@ -69,7 +69,7 @@ export default baseMixins.extend({
   render (h) {
     const element = VDraggableResizable.options.render.call(this, h)
 
-    element.data.staticClass += ' v-canvas-element-controller'
+    element.data.staticClass += ' v-sketch-element-controller'
 
     return element
   }

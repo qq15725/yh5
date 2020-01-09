@@ -2,25 +2,17 @@ import './VCanvas.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
-import { convertToUnit, isNumber } from '../../util/helpers'
+import { isNumber } from '../../util/helpers'
 
 // Components
 import VSketch from '../VSketch'
 import VCanvasElement from './VCanvasElement'
-import VCanvasElementController from './VCanvasElementController'
-import VDraggable from '../VDraggable'
-
-// Mixins
-import Proxyable from '../../mixins/proxyable'
-import Measurable from '../../mixins/measurable'
 
 // Directives
 import resize from '../../directives/resize'
 import intersect from '../../directives/intersect'
 
 const baseMixins = mixins(
-  Proxyable,
-  Measurable,
   VSketch,
 )
 
@@ -28,12 +20,6 @@ export default baseMixins.extend({
   inheritAttrs: false,
 
   name: 'v-canvas',
-
-  provide () {
-    return {
-      canvas: this,
-    }
-  },
 
   directives: {
     resize,
@@ -60,7 +46,6 @@ export default baseMixins.extend({
 
   data () {
     return {
-      hoverIndex: null,
       resizeWrapper: {
         offsetWidth: null,
         offsetHeight: null,
@@ -83,8 +68,16 @@ export default baseMixins.extend({
   },
 
   computed: {
-    hovered () {
-      return this.internalValue[this.hoverIndex]
+    classes () {
+      let classes = {
+        'v-canvas': true,
+      }
+
+      if (this.editable) {
+        classes = Object.assign(classes, (VSketch.options.computed.classes.call(this)))
+      }
+
+      return classes
     },
   },
 
@@ -188,7 +181,7 @@ export default baseMixins.extend({
           this.$set(this.internalValue[index], name, val[name])
         })
         data.on['click'] = event => {
-          this.internalSelectedIndex = index
+          this.selectedIndex = index
           event.preventDefault()
           event.stopPropagation()
         }
@@ -200,73 +193,6 @@ export default baseMixins.extend({
     },
     genElements () {
       return this.value.map((x, i) => this.genElement(x, i, false))
-    },
-    genHover () {
-      return this.$createElement('div', {
-        staticClass: 'v-canvas__hovered',
-        style: {
-          top: convertToUnit(this.hovered.top || 0),
-          left: convertToUnit(this.hovered.left || 0),
-          width: convertToUnit(this.hovered.width || 0),
-          height: convertToUnit(this.hovered.height || 0),
-        }
-      })
-    },
-    updateSelected (name, val) {
-      this.$set(this.internalValue[this.internalSelectedIndex], name, val)
-    },
-    genResizeController (axis) {
-      let children
-      if (axis === 'x') {
-        children = this.width
-      } else if (axis === 'y') {
-        children = this.height
-      }
-
-      return this.$createElement(VDraggable, {
-        props: {
-          value: {
-            top: this.height,
-            left: this.width,
-          },
-          axis,
-        },
-        on: {
-          change: ({ top, left }) => this.$emit('size-change', {
-            height: top,
-            width: left,
-          })
-        },
-        scopedSlots: {
-          default: () => this.$createElement('div', {
-            staticClass: `v-canvas__resize v-canvas__resize-${axis}`
-          }, children)
-        }
-      })
-    },
-    genElementController () {
-      return this.$createElement(VCanvasElementController, {
-        props: {
-          value: {
-            top: this.selected.top || 0,
-            left: this.selected.left || 0,
-            width: this.selected.width || 10,
-            height: this.selected.height || 10,
-          },
-          minWidth: 30,
-          minHeight: 30,
-          parent: this.parent,
-        },
-        on: {
-          click: event => {
-            event.preventDefault()
-            event.stopPropagation()
-          },
-          dragging: this.calculateRefData,
-          dragstop: this.clearRefData,
-          change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
-        },
-      })
     },
   },
 
@@ -285,9 +211,9 @@ export default baseMixins.extend({
     )
 
     if (this.editable) {
-      if (this.internalSelectedIndex !== null) children.push(this.genElementController())
+      if (this.selectedIndex !== null) children.push(this.genElementController())
 
-      if (this.hoverIndex !== null && this.internalSelectedIndex !== this.hoverIndex) {
+      if (this.hoverIndex !== null && this.selectedIndex !== this.hoverIndex) {
         children.push(this.genHover())
       }
 
@@ -301,7 +227,7 @@ export default baseMixins.extend({
     }
 
     return h('div', {
-      staticClass: 'v-canvas',
+      class: this.classes,
       style: this.measurableStyles,
       directives: [{
         name: 'resize',
@@ -310,6 +236,9 @@ export default baseMixins.extend({
           this.resizeWrapper.offsetHeight = this.$el.offsetHeight
         },
       }],
+      on: {
+        click: () => this.selectedIndex = null
+      },
     }, children)
   }
 })

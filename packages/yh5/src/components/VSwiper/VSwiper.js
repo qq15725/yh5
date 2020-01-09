@@ -1,6 +1,3 @@
-// Styles
-import 'swiper/dist/css/swiper.css'
-
 // Helpers
 import mixins from '../../util/mixins'
 

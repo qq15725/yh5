@@ -101,6 +101,7 @@
 <script>
   // 动画
   import 'animate.css'
+  import 'swiper/dist/css/swiper.css'
 
   import VSwipersForm from './form'
 

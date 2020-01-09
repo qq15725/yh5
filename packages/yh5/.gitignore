@@ -1,3 +1,5 @@
 # Built files
 /es5/
 /lib/
+/lib-temp/
+/dist/

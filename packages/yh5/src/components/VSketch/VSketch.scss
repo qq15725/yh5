@@ -1,0 +1,47 @@
+.v-sketch {
+  &__hovered {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid #6CCFFF;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &__resize {
+    position: absolute;
+    z-index: 3;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #F2F2F2;
+    &:hover {
+      background-color: #dadada;
+    }
+  }
+
+  &__resize-x {
+    cursor: ew-resize;
+    right: -25px;
+    top: 0;
+    height: 100%;
+    width: 25px;
+  }
+
+  &__resize-y {
+    cursor: ns-resize;
+    bottom: -25px;
+    left: 0;
+    height: 25px;
+    width: 100%;
+  }
+
+  &__resize-both {
+    cursor: nwse-resize;
+    bottom: -25px;
+    right: -25px;
+    height: 25px;
+    width: 25px;
+  }
+}

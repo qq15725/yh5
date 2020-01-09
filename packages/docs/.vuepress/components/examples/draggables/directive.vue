@@ -13,7 +13,7 @@
 </template>
 
 <script>
-  import { Draggable } from 'yh5'
+  import { Draggable } from 'yh5/src/directives'
 
   export default {
     directives: {

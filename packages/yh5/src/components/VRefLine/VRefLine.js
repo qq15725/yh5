@@ -1,12 +1,12 @@
 // Scss
-import './VSketchRefLine.scss'
+import './VRefLine.scss'
 
 // Helpers
 import { convertToUnit } from '../../util/helpers'
 import mergeData from '../../util/mergeData'
 
 export default {
-  name: 'v-sketch-ref-line',
+  name: 'v-ref-line',
   functional: true,
   props: {
     tag: {
@@ -40,10 +40,10 @@ export default {
     if (props.borderStyle) styles.borderStyle = props.borderStyle
 
     let classes = {
-      'v-sketch-ref-line': true,
-      'v-sketch-ref-line--absolute': props.absolute,
-      'v-sketch-ref-line--fixed': props.fixed,
-      'v-sketch-ref-line--vertical': props.vertical,
+      'v-ref-line': true,
+      'v-ref-line--absolute': props.absolute,
+      'v-ref-line--fixed': props.fixed,
+      'v-ref-line--vertical': props.vertical,
     }
 
     return h(props.tag, mergeData(data, {

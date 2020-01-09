@@ -16,23 +16,18 @@
       color="#191c20"
       tile
     >
-      <div
-        @click="onClick"
+      <v-canvas
+        v-model="data"
+        :width="size.width"
+        :height="size.height"
+        @size-change="val => size = val"
+        :editable="editable"
+        :resizable="resizable"
+        :parent="parent"
+        absolute
+        class="mx-auto white"
       >
-        <v-canvas
-          v-model="data"
-          :selected-index.sync="selectedIndex"
-          :width="size.width"
-          :height="size.height"
-          @size-change="val => size = val"
-          :editable="editable"
-          :resizable="resizable"
-          :parent="parent"
-          absolute
-          class="mx-auto white"
-        >
-        </v-canvas>
-      </div>
+      </v-canvas>
     </v-card>
   </div>
 </template>
@@ -49,7 +44,6 @@
         editable: true,
         resizable: true,
         appear: false,
-        selectedIndex: null,
         data: [
           {
             tag: 'v-card',
@@ -102,9 +96,6 @@
           placeholder: '请输入详细信息',
         })
       },
-      onClick () {
-        this.selectedIndex = null
-      }
     }
   }
 </script>

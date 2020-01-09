@@ -5,6 +5,9 @@
     "docs:build": "lerna run build --scope yh5.com --stream"
   },
   "devDependencies": {
-    "lerna": "^3.15.0"
+    "lerna": "^3.15.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-merge": "^4.2.1"
   }
 }

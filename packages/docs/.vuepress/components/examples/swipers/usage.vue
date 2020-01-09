@@ -25,7 +25,8 @@
   // 动画
   import 'animate.css'
 
-  import { VSwiper } from 'yh5'
+  import 'swiper/dist/css/swiper.css'
+  import { VSwiper } from 'yh5/src/components'
   import VSwipersForm from './form'
 
   export default {

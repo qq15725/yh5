@@ -100,7 +100,7 @@ export default baseMixins.extend({
       }, {})
     },
     clearRefData () {
-      // this.refLines = []
+      this.refLines = []
     },
     calculateAdsorptionLine (item) {
       const value = this.selected

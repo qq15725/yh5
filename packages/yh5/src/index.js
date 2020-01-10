@@ -1,11 +1,6 @@
-import { install } from './install'
-
 import * as components from './components'
 import * as directives from './directives'
-
-let Yh5 = {
-  install
-}
+import Yh5 from './framework'
 
 export default Yh5
 

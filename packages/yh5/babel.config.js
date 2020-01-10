@@ -1,4 +1,7 @@
+require('dotenv').config()
+
 const env = process.env.NODE_ENV
+const version = process.env.VERSION || require('./package.json').version
 
 module.exports = {
   presets: [
@@ -6,7 +9,11 @@ module.exports = {
       modules: false,
     }],
   ],
-  plugins: [],
+  plugins: [
+    ['transform-define', {
+      __YH5_VERSION__: version
+    }],
+  ],
   env: {
     lib: {
       presets: [

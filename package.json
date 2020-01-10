@@ -2,8 +2,7 @@
   "scripts": {
     "build": "lerna run build --scope yh5 --stream",
     "docs:serve": "lerna run serve --scope yh5.com --stream",
-    "docs:build": "lerna run build --scope yh5.com --stream",
-    "gh": "gh-pages -d docs"
+    "docs:build": "lerna run build --scope yh5.com --stream && NODE_DEBUG=gh-pages gh-pages -d docs"
   },
   "devDependencies": {
     "lerna": "^3.15.0",

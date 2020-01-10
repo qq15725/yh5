@@ -73,3 +73,9 @@ Vue.use(Yh5)
 ### 文档
 
 https://qq15725.github.io/yh5/
+
+### 参考
+
+- [云凤蝶如何打造媲美 sketch 的自由画布](https://zhuanlan.zhihu.com/p/92469406)
+- [云凤蝶自由画布之道：分层模型](https://zhuanlan.zhihu.com/p/97768853)
+- [Vuetify（代码风格）](https://github.com/vuetifyjs/vuetify)

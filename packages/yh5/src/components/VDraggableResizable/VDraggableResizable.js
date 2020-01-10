@@ -18,11 +18,19 @@ export default baseMixins.extend({
       default: () => ({
         top: 0,
         left: 0,
-        width: 0,
-        height: 0,
+        width: null,
+        height: null,
       })
     },
     absolute: {
+      type: Boolean,
+      default: true,
+    },
+    draggable: {
+      type: Boolean,
+      default: true,
+    },
+    resizable: {
       type: Boolean,
       default: true,
     },
@@ -33,9 +41,6 @@ export default baseMixins.extend({
   },
 
   computed: {
-    resizableDefaultSlotStyles () {
-      return VResizable.options.computed.defaultSlotStyles.call(this)
-    },
     styles () {
       return Object.assign(
         VResizable.options.computed.styles.call(this),
@@ -105,27 +110,21 @@ export default baseMixins.extend({
   render (h) {
     let on = this.$listeners
 
-    if (!this.disabled) {
-      on = on || {}
-      on = Object.assign(on, this.genListeners())
+    if (!this.disabled && this.draggable) {
+      on = Object.assign({}, on || {}, this.genListeners())
     }
 
     return h('div', {
-      staticClass: 'v-draggable-resizable v-resizable',
       class: this.classes,
       style: this.styles,
       on,
     }, [
-      !this.disabled && this.genPoints(),
+      !this.disabled && this.resizable && this.genPoints(),
 
       h('div', {
         staticClass: 'v-resizable__wrapper',
       }, [
-        this.$scopedSlots.default && this.$scopedSlots.default({
-          style: this.resizableDefaultSlotStyles,
-          value: this.internalValue,
-          active: this.originalValue !== null
-        }),
+        this.genContent(),
       ]),
     ])
   }

@@ -9,6 +9,7 @@ import {
   VDraggable,
   VResizable,
   VDraggableResizable,
+  VDraggableResizablePanel,
 } from 'yh5/lib/components'
 
 export default ({ Vue, options, router, siteData }) => {
@@ -22,6 +23,7 @@ export default ({ Vue, options, router, siteData }) => {
       VDraggable,
       VResizable,
       VDraggableResizable,
+      VDraggableResizablePanel,
     }
   })
 

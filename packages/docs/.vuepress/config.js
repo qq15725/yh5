@@ -27,6 +27,7 @@ module.exports = {
             ['components/v-draggable', 'VDraggable（可拖拽）'],
             ['components/v-resizable', 'VResizable（可调整大小）'],
             ['components/v-draggable-resizable', 'VDraggableResizable（可拖拽调整大小）'],
+            ['components/v-draggable-resizable-panel', 'VDraggableResizablePanel（可拖拽调整大小的面板）'],
           ]
         },
         {

@@ -24,8 +24,8 @@ export default baseMixins.extend({
     value: {
       type: Object,
       default: () => ({
-        width: 0,
-        height: 0
+        width: null,
+        height: null
       }),
     },
     absolute: Boolean,
@@ -52,9 +52,17 @@ export default baseMixins.extend({
     }
   },
 
+  mounted () {
+    if (!this.height || !this.width) {
+      this.internalValue.height = this.$el.offsetHeight
+      this.internalValue.width = this.$el.offsetWidth
+    }
+  },
+
   computed: {
     classes () {
       return {
+        'v-resizable': true,
         'v-resizable--disabled': this.disabled,
         'v-resizable--activated': this.originalValue !== null,
       }
@@ -89,6 +97,10 @@ export default baseMixins.extend({
     },
     computedHideGripBreakpoint () {
       return Number(this.hideGripBreakpoint)
+    },
+    isInBreakpoint () {
+      return this.internalValue.width <= this.computedHideGripBreakpoint
+        || this.internalValue.height <= this.computedHideGripBreakpoint
     },
   },
 
@@ -150,18 +162,20 @@ export default baseMixins.extend({
     emitEndEvent () {
       this.$emit('resizestop', this.internalValue)
     },
+    genDefaultPointGrip () {
+      return this.$createElement('div', {
+        staticClass: 'v-resizable__point--grip'
+      })
+    },
     genPoint (point) {
-      const isInBreakpoint = this.internalValue.width <= this.computedHideGripBreakpoint
-        || this.internalValue.height <= this.computedHideGripBreakpoint
-
       return this.$createElement('div', {
         staticClass: `v-resizable__point v-resizable__point--${point}`,
         style: {
-          padding: isInBreakpoint ? 0 : ''
+          padding: this.isInBreakpoint ? 0 : ''
         },
         class: {
           'v-resizable__point--resizing': this.point && this.point === point,
-          'v-resizable__point--hide': this.point && this.point !== point || (isInBreakpoint && ['br', 'b', 'r'].indexOf(point) === -1),
+          'v-resizable__point--hide': this.point && this.point !== point || (this.isInBreakpoint && ['br', 'b', 'r'].indexOf(point) === -1),
         },
         on: createHandlers({
           start: event => {
@@ -175,19 +189,23 @@ export default baseMixins.extend({
           },
         }),
       }, [
-        this.$slots[point] || this.$createElement('div', {
-          staticClass: 'v-resizable__point--grip'
-        })
+        this.$slots[point] || this.genDefaultPointGrip()
       ])
     },
     genPoints () {
       return this.points.map(this.genPoint)
     },
+    genContent () {
+      return this.$scopedSlots.default && this.$scopedSlots.default({
+        value: this.internalValue,
+        style: this.defaultSlotStyles,
+        active: this.originalValue !== null
+      })
+    },
   },
 
   render (h) {
     return h('div', {
-      staticClass: 'v-resizable',
       class: this.classes,
       style: this.styles,
     }, [
@@ -196,11 +214,7 @@ export default baseMixins.extend({
       h('div', {
         staticClass: 'v-resizable__wrapper',
       }, [
-        this.$scopedSlots.default && this.$scopedSlots.default({
-          value: this.internalValue,
-          style: this.defaultSlotStyles,
-          active: this.originalValue !== null,
-        })
+        this.genContent(),
       ])
     ])
   }

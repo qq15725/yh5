@@ -15,3 +15,7 @@ export function keys (o) {
 export function isNumber (obj) {
   return typeof obj === 'number' && !isNaN(obj)
 }
+
+export function isDef (v) {
+  return v !== undefined && v !== null
+}

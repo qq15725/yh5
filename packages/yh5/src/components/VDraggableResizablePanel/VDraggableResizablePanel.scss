@@ -1,0 +1,30 @@
+.v-draggable-resizable-panel {
+  &:before {
+    display: none;
+  }
+
+  &__wrapper {
+    overflow: hidden;
+  }
+
+  .v-resizable__point {
+    padding: 0;
+    margin: 0;
+
+    &--tl, &--tr, &--bl, &--br {
+      width: 10px;
+      height: 10px;
+      z-index: 6;
+    }
+
+    &--l, &--r {
+      width: 4px;
+      height: 100%;
+    }
+
+    &--t, &--b {
+      height: 4px;
+      width: 100%;
+    }
+  }
+}

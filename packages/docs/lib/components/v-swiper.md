@@ -2,7 +2,9 @@
 
 <v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/swipers/usage.vue">
 
+<ClientOnly>
 <examples-swipers-usage></examples-swipers-usage>
+</ClientOnly>
 
 <div slot="template">
 

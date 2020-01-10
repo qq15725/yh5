@@ -27,9 +27,9 @@ Vue.use(Yh5)
 <!DOCTYPE html>
 <html>
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/yh5@0.*/dist/yh5.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/yh5/dist/yh5.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <script src="https://cdn.jsdelivr.net/npm/yh5@0.*/dist/yh5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/yh5/dist/yh5.min.js"></script>
 
   <!-- v-swiper 依赖 vue-awesome-swiper -->
 

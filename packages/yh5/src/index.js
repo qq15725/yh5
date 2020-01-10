@@ -4,6 +4,8 @@ import Yh5 from './framework'
 
 export default Yh5
 
+const install = Yh5.install
+
 Yh5.install = (Vue, args) => {
   install.call(Yh5, Vue, {
     components,

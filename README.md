@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://qq15725.github.io/yh5/" target="_blank">
-      <img style="width: 200px;" src="./logo.svg">
+      <img alt="Yh5 Logo" width="200" src="./logo.svg">
   </a>
 </p>
 

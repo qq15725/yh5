@@ -1,3 +1,22 @@
+<p align="center">
+  <img style="width: 600px;" src="./logo.svg">
+</p>
+
+<p>
+  <a href="https://www.npmjs.com/package/yh5" target="_blank">
+    <img alt="Version" src="https://img.shields.io/npm/v/yh5.svg">
+  </a>
+  <a href="https://qq15725.github.io/yh5/" target="_blank">
+    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
+  </a>
+  <a href="https://github.com/qq15725/yh5/graphs/commit-activity" target="_blank">
+    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+  </a>
+  <a href="https://github.com/qq15725/yh5/blob/master/LICENSE" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  </a>
+</p>
+
 ### 简介
 
 快速搭建中后台(hpaPaaS平台)数据驱动、可视化编辑的常用组件库

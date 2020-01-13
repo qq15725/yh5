@@ -22,10 +22,6 @@ export default baseMixins.extend({
         height: null,
       })
     },
-    absolute: {
-      type: Boolean,
-      default: true,
-    },
     draggable: {
       type: Boolean,
       default: true,
@@ -33,10 +29,6 @@ export default baseMixins.extend({
     resizable: {
       type: Boolean,
       default: true,
-    },
-    cursor: {
-      type: [Boolean, String],
-      default: 'move'
     },
   },
 
@@ -71,11 +63,11 @@ export default baseMixins.extend({
     },
     handleMove (event) {
       let value = Object.assign({}, this.internalValue)
-      if (this.point) {
-        if (this.point.indexOf('t') > -1) {
+      if (this.handle) {
+        if (this.handle.indexOf('t') > -1) {
           value.top = this.originalValue.top + event.dragOffsetY
         }
-        if (this.point.indexOf('l') > -1) {
+        if (this.handle.indexOf('l') > -1) {
           value.left = this.originalValue.left + event.dragOffsetX
         }
         return Object.assign({}, value, VResizable.options.methods.handleMove.call(this, event))
@@ -83,43 +75,45 @@ export default baseMixins.extend({
       return Object.assign({}, value, VDraggable.options.methods.handleMove.call(this, event))
     },
     emitMoveEvent () {
-      if (this.point) {
+      if (this.handle) {
         VResizable.options.methods.emitMoveEvent.call(this)
       } else {
         VDraggable.options.methods.emitMoveEvent.call(this)
       }
     },
     emitEndEvent () {
-      if (this.point) {
+      if (this.handle) {
         VResizable.options.methods.emitEndEvent.call(this)
       } else {
         VDraggable.options.methods.emitEndEvent.call(this)
       }
     },
-    genPoint (point) {
-      const element = VResizable.options.methods.genPoint.call(this, point)
+    genHandle (handle) {
+      const element = VResizable.options.methods.genHandle.call(this, handle)
 
-      if (element && !this.point && this.originalValue !== null) {
-        element.data.staticClass += ' v-resizable__point--hide'
+      if (element && !this.handle && this.originalValue !== null) {
+        element.data.staticClass += ' v-resizable__handle--hide'
       }
 
       return element
     },
+    genContent () {
+      return this.$scopedSlots.default && this.$scopedSlots.default({
+        on: this.draggable ? this.genListeners() : {},
+        value: this.internalValue,
+        style: this.defaultSlotStyles,
+        active: this.originalValue !== null
+      })
+    },
   },
 
   render (h) {
-    let on = this.$listeners
-
-    if (!this.disabled && this.draggable) {
-      on = Object.assign({}, on || {}, this.genListeners())
-    }
-
     return h('div', {
       class: this.classes,
       style: this.styles,
-      on,
+      on: this.$listeners,
     }, [
-      !this.disabled && this.resizable && this.genPoints(),
+      !this.disabled && this.resizable && this.genHandles(),
 
       h('div', {
         staticClass: 'v-resizable__wrapper',

@@ -47,7 +47,7 @@ export default baseMixins.extend({
       return value
     },
     emitMoveEvent (value) {
-      if (this.point) {
+      if (this.handle) {
         this.$emit('resizing', value)
       } else {
         this.$emit('dragging', value)
@@ -69,7 +69,7 @@ export default baseMixins.extend({
   render (h) {
     const element = VDraggableResizable.options.render.call(this, h)
 
-    element.data.staticClass += ' v-sketch-element-controller'
+    element.data.staticClass = 'v-sketch-element-controller'
 
     return element
   }

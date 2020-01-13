@@ -1,37 +1,26 @@
-### 使用
+### draggable 指令
 
-<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/draggables/directive.vue">
+试试拖动下方小方块
+
+<v-code-card height="300" url="/components/examples/draggables/directive.vue">
+
 <examples-draggables-directive></examples-draggables-directive>
 
 <div slot="template">
 
 ```html
 <template>
-  <div style="position: relative; min-height: 300px;">
-    <div style="height: 50px;">{{ value }}</div>
-
-    <div
-      class="drag-me"
-      :style="{ top: `${value.top}px`, left: `${value.left}px` }"
-      v-draggable="{ start: onStart, move: onMove, end: onEnd }"
-    >
-      拖拽我
-    </div>
-  </div>
+  <v-card
+    tile
+    dark
+    width="100"
+    height="100"
+    style="position: absolute; cursor: move;"
+    :style="{ top: `${value.top}px`, left: `${value.left}px` }"
+    v-draggable="{ start: onStart, move: onMove, end: onEnd }"
+  >
+  </v-card>
 </template>
-
-<style scoped>
-  .drag-me {
-    position: absolute;
-    height: 100px;
-    width: 100px;
-    border: 1px solid #DDD;
-    background-color: white;
-    text-align: center;
-    line-height: 100px;
-    cursor: move;
-  }
-</style>
 ```  
   
 </div>
@@ -40,7 +29,7 @@
 
 ```html
 <script>
-  import { Draggable } from 'yh5'
+  import { Draggable } from 'yh5/lib/directives'
 
   export default {
     directives: {
@@ -49,7 +38,7 @@
     data () {
       return {
         value: {
-          top: 50,
+          top: 0,
           left: 0,
         },
         originalValue: null

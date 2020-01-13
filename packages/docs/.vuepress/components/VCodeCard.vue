@@ -7,9 +7,9 @@
     <v-toolbar flat dense color="grey lighten-3">
       <v-spacer></v-spacer>
 
-      <v-tooltip v-if="url" bottom>
+      <v-tooltip v-if="computedUrl" bottom>
         <template #activator="{ on }">
-          <v-btn icon v-on="on" :href="url" target="_blank">
+          <v-btn icon v-on="on" :href="computedUrl" target="_blank">
             <v-icon v-text="'open_in_new'"></v-icon>
           </v-btn>
         </template>
@@ -43,14 +43,14 @@
         >
           <v-window-item>
             <div class="v-example__container">
-              <v-card color="#282c34" outlined>
+              <v-card color="#282c34" tile outlined>
                 <slot name="template"></slot>
               </v-card>
             </div>
           </v-window-item>
           <v-window-item>
             <div class="v-example__container">
-              <v-card color="#282c34" outlined>
+              <v-card color="#282c34" tile outlined>
                 <slot name="script"></slot>
               </v-card>
             </div>
@@ -59,17 +59,32 @@
       </v-card>
     </v-expand-transition>
 
-    <ClientOnly>
-      <slot></slot>
-    </ClientOnly>
+    <v-card tile flat v-bind="$attrs">
+      <ClientOnly>
+        <slot></slot>
+      </ClientOnly>
+    </v-card>
   </v-card>
 </template>
 
 <script>
   export default {
+    inheritAttrs: false,
+
     props: {
       url: String,
     },
+
+    computed: {
+      computedUrl () {
+        if (!this.url || /\/http/.test(this.url)) {
+          return this.url
+        }
+
+        return `https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress${this.url}`
+      }
+    },
+
     data () {
       return {
         showCode: false,

@@ -15,7 +15,7 @@ const baseMixins = mixins(
   VDraggable
 )
 
-export const defaultPoints = ['t', 'tl', 'l', 'b', 'bl', 'tr', 'r', 'br']
+export const defaultHandles = ['t', 'tl', 'l', 'b', 'bl', 'tr', 'r', 'br']
 
 export default baseMixins.extend({
   name: 'v-resizable',
@@ -28,27 +28,37 @@ export default baseMixins.extend({
         height: null
       }),
     },
-    absolute: Boolean,
-    cursor: Boolean,
     minWidth: [String, Number],
     maxWidth: [String, Number],
     minHeight: [String, Number],
     maxHeight: [String, Number],
-    hideGripBreakpoint: {
+    breakpoint: {
       type: [String, Number],
       default: 50
     },
-    points: {
+    handles: {
       type: Array,
-      default: () => defaultPoints,
-      validator: val => new Set(val.filter(h => new Set(defaultPoints).has(h))).size === val.length
+      default: () => defaultHandles,
+      validator: val => new Set(val.filter(h => new Set(defaultHandles).has(h))).size === val.length
     },
     aspectRatio: [String, Number],
+    outlined: Boolean,
+    point: Boolean,
   },
 
   data () {
     return {
-      point: null,
+      handle: null,
+      cursorMap: {
+        t: 'ns-resize',
+        tl: 'nwse-resize',
+        l: 'ew-resize',
+        b: 'ns-resize',
+        bl: 'nesw-resize',
+        tr: 'nesw-resize',
+        r: 'ew-resize',
+        br: 'nwse-resize',
+      },
     }
   },
 
@@ -63,6 +73,7 @@ export default baseMixins.extend({
     classes () {
       return {
         'v-resizable': true,
+        'v-resizable--outlined': this.outlined,
         'v-resizable--disabled': this.disabled,
         'v-resizable--activated': this.originalValue !== null,
       }
@@ -75,7 +86,6 @@ export default baseMixins.extend({
 
       if (this.absolute) style.position = 'absolute'
       if (this.fixed) style.position = 'fixed'
-      if (!this.disabled && this.cursor) style.cursor = this.cursor
       if (width) style.width = width
       if (height) style.height = height
 
@@ -95,12 +105,12 @@ export default baseMixins.extend({
     computedAspectRatio () {
       return Number(this.aspectRatio)
     },
-    computedHideGripBreakpoint () {
-      return Number(this.hideGripBreakpoint)
+    computedBreakpoint () {
+      return Number(this.breakpoint)
     },
-    isInBreakpoint () {
-      return this.internalValue.width <= this.computedHideGripBreakpoint
-        || this.internalValue.height <= this.computedHideGripBreakpoint
+    inBreakpoint () {
+      return this.internalValue.width <= this.computedBreakpoint
+        || this.internalValue.height <= this.computedBreakpoint
     },
   },
 
@@ -126,8 +136,8 @@ export default baseMixins.extend({
       return value
     },
     convertToAspectRatio (value) {
-      if (!this.computedAspectRatio || !this.point) return value
-      if (this.point.indexOf('l') > -1 || this.point.indexOf('r') > -1) {
+      if (!this.computedAspectRatio || !this.handle) return value
+      if (this.handle.indexOf('l') > -1 || this.handle.indexOf('r') > -1) {
         value.height = value.width * this.computedAspectRatio
       } else {
         value.width = value.height / this.computedAspectRatio
@@ -139,16 +149,16 @@ export default baseMixins.extend({
         width: this.internalValue.width,
         height: this.internalValue.height,
       }
-      if (this.point) {
-        if (this.point.indexOf('l') > -1) {
+      if (this.handle) {
+        if (this.handle.indexOf('l') > -1) {
           value.width = this.originalValue.width - event.dragOffsetX
-        } else if (this.point.indexOf('r') > -1) {
+        } else if (this.handle.indexOf('r') > -1) {
           value.width = this.originalValue.width + event.dragOffsetX
         }
 
-        if (this.point.indexOf('t') > -1) {
+        if (this.handle.indexOf('t') > -1) {
           value.height = this.originalValue.height - event.dragOffsetY
-        } else if (this.point.indexOf('b') > -1) {
+        } else if (this.handle.indexOf('b') > -1) {
           value.height = this.originalValue.height + event.dragOffsetY
         }
 
@@ -162,38 +172,46 @@ export default baseMixins.extend({
     emitEndEvent () {
       this.$emit('resizestop', this.internalValue)
     },
-    genDefaultPointGrip () {
+    genDefaultHandle ({ on, style }) {
       return this.$createElement('div', {
-        staticClass: 'v-resizable__point--grip'
+        staticClass: this.point ? 'v-resizable__handle--point' : 'v-resizable__handle--line',
+        style,
+        on,
       })
     },
-    genPoint (point) {
-      return this.$createElement('div', {
-        staticClass: `v-resizable__point v-resizable__point--${point}`,
-        style: {
-          padding: this.isInBreakpoint ? 0 : ''
-        },
-        class: {
-          'v-resizable__point--resizing': this.point && this.point === point,
-          'v-resizable__point--hide': this.point && this.point !== point || (this.isInBreakpoint && ['br', 'b', 'r'].indexOf(point) === -1),
-        },
+    genHandle (handle) {
+      const props = {
         on: createHandlers({
           start: event => {
-            this.point = point
+            this.handle = handle
             this.onStart(event)
           },
           move: this.onMove,
           end: event => {
             this.onEnd(event)
-            this.point = null
+            this.handle = null
           },
         }),
+        style: {
+          cursor: this.cursorMap[handle],
+        },
+        inBreakpoint: this.inBreakpoint
+      }
+
+      return this.$createElement('div', {
+        staticClass: `v-resizable__handle v-resizable__handle--${handle}`,
+        class: {
+          'v-resizable__handle--resizing': this.handle && this.handle === handle,
+          'v-resizable__handle--hide': this.handle && this.handle !== handle || (this.inBreakpoint && ['br', 'b', 'r'].indexOf(handle) === -1),
+        },
       }, [
-        this.$slots[point] || this.genDefaultPointGrip()
+        this.$scopedSlots[handle]
+          ? this.$scopedSlots[handle](props)
+          : this.genDefaultHandle(props)
       ])
     },
-    genPoints () {
-      return this.points.map(this.genPoint)
+    genHandles () {
+      return this.handles.map(this.genHandle)
     },
     genContent () {
       return this.$scopedSlots.default && this.$scopedSlots.default({
@@ -208,8 +226,9 @@ export default baseMixins.extend({
     return h('div', {
       class: this.classes,
       style: this.styles,
+      on: this.$listeners,
     }, [
-      !this.disabled && this.genPoints(),
+      !this.disabled && this.genHandles(),
 
       h('div', {
         staticClass: 'v-resizable__wrapper',

@@ -1,6 +1,6 @@
 依托 `v-canvas` 和 `Vuetify` 和 `html2canvas` 打造一个简单的图片海报生成工具
 
-<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/poster.vue">
+<v-code-card url="/components/examples/poster.vue">
 
 <examples-poster></examples-poster>
 

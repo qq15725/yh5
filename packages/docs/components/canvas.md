@@ -1,6 +1,6 @@
 ### 使用
 
-<v-code-card url="https://github.com/qq15725/yh5/blob/master/packages/docs/.vuepress/components/examples/canvas/usage.vue">
+<v-code-card url="/components/examples/canvas/usage.vue">
 
 <examples-canvas-usage></examples-canvas-usage>
 

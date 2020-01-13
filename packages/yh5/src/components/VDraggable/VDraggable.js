@@ -23,15 +23,9 @@ export default baseMixins.extend({
         left: 0,
       }),
     },
-    absolute: {
-      type: Boolean,
-      default: true,
-    },
+    absolute: Boolean,
     fixed: Boolean,
-    cursor: {
-      type: [Boolean, String],
-      default: 'move'
-    },
+    cursor: [Boolean, String],
     disabled: Boolean,
     axis: {
       type: String,
@@ -74,7 +68,7 @@ export default baseMixins.extend({
 
       if (this.absolute) style.position = 'absolute'
       if (this.fixed) style.position = 'fixed'
-      if (!this.disabled && this.cursor) style.cursor = this.cursor
+      if (!this.disabled && this.cursor) style.cursor = this.cursor === true ? 'move' : this.cursor
       if (left) style.left = left
       if (top) style.top = top
 
@@ -149,6 +143,7 @@ export default baseMixins.extend({
       event.stopPropagation()
     },
     genListeners () {
+      if (this.disabled) return {}
       return createHandlers({
         start: this.onStart,
         move: this.onMove,
@@ -166,6 +161,7 @@ export default baseMixins.extend({
 
     if (this.$scopedSlots.default) {
       element = this.$scopedSlots.default({
+        on: this.genListeners(),
         value: this.internalValue,
         style: this.styles,
         active: this.originalValue !== null,
@@ -178,12 +174,6 @@ export default baseMixins.extend({
 
     if (!element || Array.isArray(element) || !element.tag) {
       return element
-    }
-
-    if (!this.disabled) {
-      element.data = element.data || {}
-      element.data.on = element.data.on || {}
-      this._g(element.data, this.genListeners())
     }
 
     return element

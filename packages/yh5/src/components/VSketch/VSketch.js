@@ -55,6 +55,12 @@ export default baseMixins.extend({
     }
   },
 
+  watch: {
+    selectedIndex (index) {
+      this.$emit('selected', index)
+    }
+  },
+
   computed: {
     classes () {
       return {
@@ -366,6 +372,10 @@ export default baseMixins.extend({
             width: this.selected.width || 10,
             height: this.selected.height || 10,
           },
+          absolute: true,
+          point: true,
+          outlined: true,
+          cursor: true,
           minWidth: 30,
           minHeight: 30,
           parent: this.parent,
@@ -379,6 +389,12 @@ export default baseMixins.extend({
           dragstop: this.clearRefData,
           change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
         },
+        scopedSlots: {
+          default: ({ on, style }) => this.$createElement('div', {
+            on,
+            style,
+          })
+        }
       })
     },
     genResizeController (axis) {

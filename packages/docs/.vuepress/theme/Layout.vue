@@ -22,4 +22,17 @@
   .v-application code:after, .v-application code:before, .v-application kbd:after, .v-application kbd:before {
     content: none;
   }
+
+  .v-application p {
+    margin-bottom: 0;
+  }
+
+  .home .feature h2 {
+    line-height: inherit;
+  }
+
+  .page p {
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
 </style>

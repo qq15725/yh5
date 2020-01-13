@@ -9,7 +9,7 @@ import {
   VDraggable,
   VResizable,
   VDraggableResizable,
-} from 'yh5/src/components'
+} from 'yh5/lib/components'
 
 export default ({ Vue, options, router, siteData }) => {
   Vue.use(Vuetify, {

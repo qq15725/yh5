@@ -32,7 +32,6 @@ export default baseMixins.extend({
       default: () => [],
     },
     editable: Boolean,
-    resizable: Boolean,
     appear: Boolean,
     lazy: Boolean,
     absolute: Boolean,
@@ -218,12 +217,6 @@ export default baseMixins.extend({
       }
 
       children.push(this.genRefLines())
-
-      if (this.resizable && this.height && this.width) {
-        children.push(this.genResizeController('x'))
-        children.push(this.genResizeController('y'))
-        children.push(this.genResizeController('both'))
-      }
     }
 
     return h('div', {

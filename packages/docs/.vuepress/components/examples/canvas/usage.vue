@@ -3,7 +3,6 @@
     <v-row no-gutters>
       <v-switch v-model="parent" label="parent" class="mx-2"></v-switch>
       <v-switch v-model="editable" label="editable" class="mx-2"></v-switch>
-      <v-switch v-model="resizable" label="resizable" class="mx-2"></v-switch>
       <v-switch v-model="appear" label="appear" class="mx-2"></v-switch>
     </v-row>
 
@@ -18,11 +17,9 @@
     >
       <v-canvas
         v-model="data"
-        :width="size.width"
-        :height="size.height"
-        @size-change="val => size = val"
+        :width="375"
+        :height="667"
         :editable="editable"
-        :resizable="resizable"
         :parent="parent"
         absolute
         class="mx-auto white"
@@ -36,13 +33,8 @@
   export default {
     data () {
       return {
-        size: {
-          width: 375,
-          height: 667,
-        },
         parent: false,
         editable: true,
-        resizable: true,
         appear: false,
         data: [
           {

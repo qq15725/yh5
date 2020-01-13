@@ -397,34 +397,5 @@ export default baseMixins.extend({
         }
       })
     },
-    genResizeController (axis) {
-      let children
-      if (axis === 'x') {
-        children = this.width
-      } else if (axis === 'y') {
-        children = this.height
-      }
-
-      return this.$createElement(VDraggable, {
-        props: {
-          value: {
-            top: this.height,
-            left: this.width,
-          },
-          axis,
-        },
-        on: {
-          change: ({ top, left }) => this.$emit('size-change', {
-            height: top,
-            width: left,
-          })
-        },
-        scopedSlots: {
-          default: () => this.$createElement('div', {
-            staticClass: `v-sketch__resize v-sketch__resize-${axis}`
-          }, children)
-        }
-      })
-    },
   }
 })

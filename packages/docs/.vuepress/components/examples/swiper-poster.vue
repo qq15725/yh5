@@ -6,8 +6,8 @@
       <v-btn @click="data.push({ value: [] })" class="mx-2" color="primary" small>新增页面</v-btn>
 
       <v-dialog
-        :width="375 * 0.8"
-        :height="674 * 0.8"
+        :width="width * 0.8"
+        :height="height * 0.8"
       >
         <template #activator="{ on }">
           <v-btn v-on="on" class="mx-2" color="primary" small>预览</v-btn>
@@ -16,10 +16,10 @@
         <v-swiper
           :options="options"
           :value="data"
-          :width="375 * 0.8"
-          :height="674 * 0.8"
-          :reference-width="375"
-          :reference-height="674"
+          :width="width * 0.8"
+          :height="height * 0.8"
+          :reference-width="width"
+          :reference-height="height"
           ref="VSwiper"
           class="white"
         >
@@ -40,6 +40,10 @@
           </v-tab>
           <v-tab>
             <span>照片</span>
+            <v-icon v-text="'image'"></v-icon>
+          </v-tab>
+          <v-tab>
+            <span>背景</span>
             <v-icon v-text="'image'"></v-icon>
           </v-tab>
           <v-tab-item>
@@ -70,10 +74,17 @@
           <v-tab-item>
             <div style="height: 700px;" class="overflow-y-auto px-2">
               <v-row dense>
-                <v-col>
+                <v-col cols="12" class="text-right">
+                  <v-btn @click="genImages" small icon>
+                    <v-icon v-text="'refresh'"></v-icon>
+                  </v-btn>
+                </v-col>
+                <v-col
+                  v-for="i in 2" :key="i"
+                >
                   <v-row dense>
                     <v-col
-                      v-for="(item, index) in images.filter((_, i) => i % 2 === 0)" :key="index"
+                      v-for="(item, index) in images.filter((_, _i) => _i % 2 === i - 1)" :key="index"
                       cols="12"
                     >
                       <v-card
@@ -81,7 +92,7 @@
                         flat
                         outlined
                         :ripple="false"
-                        @click="selectedPage.push({ ...item })"
+                        @click="pushItem({ ...item })"
                       >
                         <v-img
                           v-if="item.tag === 'img'"
@@ -89,16 +100,46 @@
                           :lazy-src="item.lazySrc"
                           :aspect-ratio="item.aspectRatio"
                           class="grey lighten-2"
+                          contain
                         >
                         </v-img>
                       </v-card>
                     </v-col>
                   </v-row>
                 </v-col>
-                <v-col>
+              </v-row>
+            </div>
+          </v-tab-item>
+          <v-tab-item>
+            <div style="height: 700px;" class="overflow-y-auto px-2">
+              <v-row dense>
+                <v-col cols="12" class="text-right">
+                  <v-btn @click="genBackgroundImages" small icon>
+                    <v-icon v-text="'refresh'"></v-icon>
+                  </v-btn>
+                </v-col>
+                <v-col
+                  v-for="i in 2" :key="i"
+                >
                   <v-row dense>
                     <v-col
-                      v-for="(item, index) in images.filter((_, i) => i % 2 !== 0)" :key="index"
+                      cols="12"
+                      v-if="i === 1"
+                    >
+                      <v-card
+                        tile
+                        flat
+                        outlined
+                        :ripple="false"
+                        @click="setBackground(null)"
+                      >
+                        <v-responsive :aspect-ratio="375/674">
+                          <v-row no-gutters justify="center" align="center" class="fill-height">空白</v-row>
+                        </v-responsive>
+                      </v-card>
+                    </v-col>
+                    <v-col
+                      v-for="(item, index) in backgroundImages.filter((_, _i) => _i % 2 === i - 1)" :key="index"
                       cols="12"
                     >
                       <v-card
@@ -106,7 +147,7 @@
                         flat
                         outlined
                         :ripple="false"
-                        @click="selectedPage.push({ ...item })"
+                        @click="setBackground(item.src)"
                       >
                         <v-img
                           v-if="item.tag === 'img'"
@@ -114,6 +155,7 @@
                           :lazy-src="item.lazySrc"
                           :aspect-ratio="item.aspectRatio"
                           class="grey lighten-2"
+                          contain
                         >
                         </v-img>
                       </v-card>
@@ -125,6 +167,7 @@
           </v-tab-item>
         </v-tabs>
       </v-col>
+
       <v-col cols="8">
         <v-card color="grey" flat class="d-flex justify-center align-center fill-height" tile>
           <v-canvas
@@ -135,8 +178,8 @@
             appear
             absolute
             editable
-            width="375"
-            height="667"
+            :width="width"
+            :height="height"
             class="white"
           >
           </v-canvas>
@@ -149,10 +192,10 @@
             v-model="panel"
             v-if="selected"
           >
-            <template #default="{ on }">
-              <v-card class="fill-height" tile flat outlined>
+            <template #default="{ on, style }">
+              <v-card :style="style" tile outlined>
                 <v-system-bar style="cursor: move;" v-on="on" window dark>
-                  <div class="text-truncate">{{ selected.tag }}</div>
+                  <div class="text-truncate">{{ selected.tag }}属性编辑</div>
                   <v-spacer></v-spacer>
                 </v-system-bar>
 
@@ -172,6 +215,7 @@
   import 'animate.css'
   import 'swiper/dist/css/swiper.css'
   import { VSwiper } from 'yh5/lib/components'
+  import { genImages } from '../../util/image'
 
   export default {
     components: {
@@ -179,9 +223,12 @@
     },
     data () {
       return {
+        width: 376,
+        height: 667,
         panel: {
           left: 0,
           top: 0,
+          width: 150,
         },
         data: [
           {
@@ -194,103 +241,21 @@
         ],
         selectedPageIndex: 0,
         selectedIndex: null,
-        images: [],
         showCanvas: true,
-        animations: [
-          'bounce',
-          'flash',
-          'pulse',
-          'rubberBand',
-          'shake',
-          'headShake',
-          'swing',
-          'tada',
-          'wobble',
-          'jello',
-          'bounceIn',
-          'bounceInDown',
-          'bounceInLeft',
-          'bounceInRight',
-          'bounceInUp',
-          'bounceOut',
-          'bounceOutDown',
-          'bounceOutLeft',
-          'bounceOutRight',
-          'bounceOutUp',
-          'fadeIn',
-          'fadeInDown',
-          'fadeInDownBig',
-          'fadeInLeft',
-          'fadeInLeftBig',
-          'fadeInRight',
-          'fadeInRightBig',
-          'fadeInUp',
-          'fadeInUpBig',
-          'fadeOut',
-          'fadeOutDown',
-          'fadeOutDownBig',
-          'fadeOutLeft',
-          'fadeOutLeftBig',
-          'fadeOutRight',
-          'fadeOutRightBig',
-          'fadeOutUp',
-          'fadeOutUpBig',
-          'flipInX',
-          'flipInY',
-          'flipOutX',
-          'flipOutY',
-          'lightSpeedIn',
-          'lightSpeedOut',
-          'rotateIn',
-          'rotateInDownLeft',
-          'rotateInDownRight',
-          'rotateInUpLeft',
-          'rotateInUpRight',
-          'rotateOut',
-          'rotateOutDownLeft',
-          'rotateOutDownRight',
-          'rotateOutUpLeft',
-          'rotateOutUpRight',
-          'hinge',
-          'jackInTheBox',
-          'rollIn',
-          'rollOut',
-          'zoomIn',
-          'zoomInDown',
-          'zoomInLeft',
-          'zoomInRight',
-          'zoomInUp',
-          'zoomOut',
-          'zoomOutDown',
-          'zoomOutLeft',
-          'zoomOutRight',
-          'zoomOutUp',
-          'slideInDown',
-          'slideInLeft',
-          'slideInRight',
-          'slideInUp',
-          'slideOutDown',
-          'slideOutLeft',
-          'slideOutRight',
-          'slideOutUp',
-          'heartBeat',
-        ],
-        aspectRatioList: [
-          1,
-          3 / 4,
-          9 / 16,
-        ],
         options: {
           direction: 'vertical',
           effect: 'coverflow'
           // noSwiping: true,
           // noSwipingSelector: '.v-swiper__slide',
         },
+        images: [],
+        backgroundImages: [],
       }
     },
 
     created () {
-      this.images = this.genImages()
+      this.genImages()
+      this.genBackgroundImages()
     },
 
     watch: {
@@ -321,31 +286,22 @@
     },
 
     methods: {
-      genAnimation () {
-        return this.animations[~~(Math.random() * this.animations.length)]
+      pushItem (item) {
+        this.data[this.selectedPageIndex].value.push(item)
       },
-      genAspectRatio () {
-        return this.aspectRatioList[~~(Math.random() * this.aspectRatioList.length)]
-      },
-      genImage () {
-        const id = ~~(Math.random() * 100)
-        const aspectRatio = this.genAspectRatio()
-        return {
-          tag: 'img',
-          src: `https://picsum.photos/id/${id}/${~~(375 * aspectRatio)}/${~~(375 * (1 / aspectRatio))}`,
-          lazySrc: `https://picsum.photos/id/${id}/${~~(6 * aspectRatio)}/${~~(6 * (1 / aspectRatio))}`,
-          aspectRatio,
-          width: 200,
-          height: 200,
-        }
+      setBackground (background) {
+        this.$set(this.data[this.selectedPageIndex], 'background', background)
       },
       genImages () {
-        const items = []
-        let i = 40
-        while (i--) {
-          items.push(this.genImage())
-        }
-        return items
+        this.images = genImages(40).map(item => ({
+          ...item,
+          left: this.width / 2 - item.width / 2,
+          top: this.height / 2 - item.height / 2,
+          class: 'animated fadeIn slow',
+        }))
+      },
+      genBackgroundImages () {
+        this.backgroundImages = genImages(40, 375 / 667)
       },
     }
   }

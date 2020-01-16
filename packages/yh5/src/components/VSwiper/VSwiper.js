@@ -1,3 +1,4 @@
+import './VSwiper.scss'
 // Helpers
 import mixins from '../../util/mixins'
 
@@ -62,6 +63,9 @@ export default baseMixins.extend({
     },
     swiper () {
       return this.$refs.VSwiper.swiper
+    },
+    isLoop () {
+      return this.options.loop
     }
   },
 
@@ -73,33 +77,31 @@ export default baseMixins.extend({
       this.touchMoveY = event.clientY
       let index
       if (this.touchMoveY - this.touchStartY > 0) {
-        index = this.swiper.activeIndex - 1
+        index = this.swiper.realIndex - 1
       } else {
-        index = this.swiper.activeIndex + 1
+        index = this.swiper.realIndex + 1
       }
       if (index >= 0 && index < this.value.length && this.internalIndexes.indexOf(index) === -1) {
         if (this.disableSlideReload) {
           this.internalIndexes.push(index)
         } else {
           this.internalIndexes = [
-            this.swiper.activeIndex,
+            this.swiper.realIndex,
             index
           ]
         }
       }
     },
     slideChangeTransitionEnd () {
-      if (!this.disableSlideReload) {
+      if (!this.disableSlideReload && this.swiper) {
         this.internalIndexes = [
-          this.swiper.activeIndex
+          this.swiper.realIndex
         ]
       }
     },
     genContent () {
       return this.value.map(({ background, on, style, class: _class, ...attrs }, index) => {
-        return this.$createElement(VSwiperSlide, {
-          staticClass: 'v-swiper__slide',
-        }, [
+        return this.$createElement(VSwiperSlide, [
           this.$createElement(VCanvas, {
             class: _class,
             style,
@@ -111,7 +113,7 @@ export default baseMixins.extend({
               referenceHeight: this.referenceHeight,
               background,
               lazy: this.lazy,
-              hideElements: !this.lazy && this.internalIndexes.indexOf(index) === -1,
+              hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
             },
             on,
           })
@@ -121,7 +123,19 @@ export default baseMixins.extend({
   },
 
   render (h) {
-    const options = this.options || {}
+    const options = Object.assign({
+      wrapperClass: 'v-swiper__wrapper',
+      slideClass: 'v-swiper__slide',
+      slideActiveClass: 'v-swiper__slide--active',
+      slideNextClass: 'v-swiper__slide--next',
+      slidePrevClass: 'v-swiper__slide--prev',
+      slideDuplicateClass: 'v-swiper__slide--duplicate',
+      slideVisibleClass: 'v-swiper__slide--visible',
+      slideDuplicatedActiveClass: 'v-swiper__slide--duplicate-active',
+      slideDuplicatedNextClass: 'v-swiper__slide--duplicate-next',
+      slideDuplicatedPrevClass: 'v-swiper__slide--duplicate-prev',
+      containerModifierClass: 'v-swiper__container-',
+    }, this.options || {})
 
     options.on = {
       touchStart: this.touchStart,
@@ -130,9 +144,15 @@ export default baseMixins.extend({
       ...(options.on || {}),
     }
 
+    let staticClass = 'v-swiper'
+
+    if (this.isLoop) {
+      staticClass += ' v-swiper--loop'
+    }
+
     return h(VSwiper, {
       ref: 'VSwiper',
-      staticClass: 'v-swiper',
+      staticClass,
       style: this.measurableStyles,
       props: {
         options,

@@ -1,0 +1,12 @@
+.v-swiper.v-swiper--loop {
+  .v-swiper__slide {
+    .v-canvas__wrapper {
+      display: none;
+    }
+    &--active {
+      .v-canvas__wrapper {
+        display: block;
+      }
+    }
+  }
+}

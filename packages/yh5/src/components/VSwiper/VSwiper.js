@@ -134,7 +134,7 @@ export default baseMixins.extend({
       slideDuplicatedActiveClass: 'v-swiper__slide--duplicate-active',
       slideDuplicatedNextClass: 'v-swiper__slide--duplicate-next',
       slideDuplicatedPrevClass: 'v-swiper__slide--duplicate-prev',
-      containerModifierClass: 'v-swiper__container-',
+      containerModifierClass: 'v-swiper--',
     }, this.options || {})
 
     options.on = {

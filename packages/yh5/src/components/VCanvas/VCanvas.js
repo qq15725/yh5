@@ -81,21 +81,24 @@ export default baseMixins.extend({
   },
 
   methods: {
-    convertXY (value, isX = null) {
-      if (isX !== null && value && isNumber(value)) {
-        if (isX) {
-          if (this.referenceWidth && this.resizeWrapper.offsetWidth) {
-            value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
-          } else if (this.referenceHeight && this.resizeWrapper.offsetHeight) {
-            value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
-          }
-        }
-        if (!isX) {
-          if (this.referenceHeight && this.resizeWrapper.offsetHeight) {
-            value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
-          } else if (this.referenceWidth && this.resizeWrapper.offsetWidth) {
-            value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
-          }
+    convertXY (value, isX, field) {
+      if (
+        isX !== null
+        && value
+        && isNumber(value)
+        && this.resizeWrapper.offsetWidth
+        && this.resizeWrapper.offsetHeight
+        && this.referenceWidth
+        && this.referenceHeight
+      ) {
+        const xRatio = this.resizeWrapper.offsetWidth / this.referenceWidth
+        const yRatio = this.resizeWrapper.offsetHeight / this.referenceHeight
+        const ratio = Math.min(xRatio, yRatio)
+        value *= ratio
+        if (isX && ratio === yRatio && field === 'left') {
+          value += (this.resizeWrapper.offsetWidth - this.referenceWidth * ratio) / 2
+        } else if (!isX && ratio === xRatio && field === 'top') {
+          value += (this.resizeWrapper.offsetHeight - this.referenceHeight * ratio) / 2
         }
       }
       return value
@@ -141,13 +144,13 @@ export default baseMixins.extend({
 
       this.xFields.forEach(key => {
         if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertXY(data.attrs[key], true)
+          data.attrs[key] = this.convertXY(data.attrs[key], true, key)
         }
       })
 
       this.yFields.forEach(key => {
         if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertXY(data.attrs[key], false)
+          data.attrs[key] = this.convertXY(data.attrs[key], false, key)
         }
       })
 

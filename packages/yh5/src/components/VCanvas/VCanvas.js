@@ -81,13 +81,21 @@ export default baseMixins.extend({
   },
 
   methods: {
-    convertToAspectRatio (value, isX = null) {
+    convertXY (value, isX = null) {
       if (isX !== null && value && isNumber(value)) {
-        if (isX && this.resizeWrapper.offsetWidth && this.referenceWidth) {
-          value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
+        if (isX) {
+          if (this.referenceWidth && this.resizeWrapper.offsetWidth) {
+            value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
+          } else if (this.referenceHeight && this.resizeWrapper.offsetHeight) {
+            value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
+          }
         }
-        if (!isX && this.resizeWrapper.offsetHeight && this.referenceHeight) {
-          value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
+        if (!isX) {
+          if (this.referenceHeight && this.resizeWrapper.offsetHeight) {
+            value = value * (this.resizeWrapper.offsetHeight / this.referenceHeight)
+          } else if (this.referenceWidth && this.resizeWrapper.offsetWidth) {
+            value = value * (this.resizeWrapper.offsetWidth / this.referenceWidth)
+          }
         }
       }
       return value
@@ -133,13 +141,13 @@ export default baseMixins.extend({
 
       this.xFields.forEach(key => {
         if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertToAspectRatio(data.attrs[key], true)
+          data.attrs[key] = this.convertXY(data.attrs[key], true)
         }
       })
 
       this.yFields.forEach(key => {
         if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertToAspectRatio(data.attrs[key], false)
+          data.attrs[key] = this.convertXY(data.attrs[key], false)
         }
       })
 

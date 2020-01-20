@@ -84,7 +84,6 @@ export default baseMixins.extend({
     convertXY (value, isX, field) {
       if (
         isX !== null
-        && value
         && isNumber(value)
         && this.resizeWrapper.offsetWidth
         && this.resizeWrapper.offsetHeight

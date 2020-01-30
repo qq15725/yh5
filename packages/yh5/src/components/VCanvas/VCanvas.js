@@ -8,12 +8,22 @@ import { isNumber } from '../../util/helpers'
 import VSketch from '../VSketch'
 import VCanvasElement from './VCanvasElement'
 
+// Mixins
+import CreateElementByObject from '../../mixins/create-element-by-object'
+
 // Directives
 import resize from '../../directives/resize'
 import intersect from '../../directives/intersect'
 
+// Default values
+export const CONVERT_ASPECT_RATIO_ATTRS = [
+  ['left', 'right', 'width', 'maxWidth', 'minWidth'],
+  ['top', 'bottom', 'height', 'maxHeight', 'minHeight'],
+]
+
 const baseMixins = mixins(
   VSketch,
+  CreateElementByObject,
 )
 
 export default baseMixins.extend({
@@ -41,6 +51,10 @@ export default baseMixins.extend({
     referenceHeight: Number,
     background: String,
     hideElements: Boolean,
+    convertAspectRatioAttrs: {
+      type: [Array, Boolean],
+      default: () => CONVERT_ASPECT_RATIO_ATTRS
+    }
   },
 
   data () {
@@ -49,20 +63,6 @@ export default baseMixins.extend({
         offsetWidth: null,
         offsetHeight: null,
       },
-      xFields: [
-        'left',
-        'right',
-        'width',
-        'maxWidth',
-        'minWidth'
-      ],
-      yFields: [
-        'top',
-        'bottom',
-        'height',
-        'maxHeight',
-        'minHeight',
-      ],
     }
   },
 
@@ -81,22 +81,22 @@ export default baseMixins.extend({
   },
 
   methods: {
-    convertXY (value, isX, field) {
+    convertAspectRatio (value, isHorizontal, attr) {
       if (
-        isX !== null
+        isHorizontal !== null
         && isNumber(value)
         && this.resizeWrapper.offsetWidth
         && this.resizeWrapper.offsetHeight
         && this.referenceWidth
         && this.referenceHeight
       ) {
-        const xRatio = this.resizeWrapper.offsetWidth / this.referenceWidth
-        const yRatio = this.resizeWrapper.offsetHeight / this.referenceHeight
-        const ratio = Math.min(xRatio, yRatio)
+        const horizontalRatio = this.resizeWrapper.offsetWidth / this.referenceWidth
+        const verticalRatio = this.resizeWrapper.offsetHeight / this.referenceHeight
+        const ratio = Math.min(horizontalRatio, verticalRatio)
         value *= ratio
-        if (isX && ratio === yRatio && field === 'left') {
+        if (isHorizontal && ratio === verticalRatio && attr === 'left') {
           value += (this.resizeWrapper.offsetWidth - this.referenceWidth * ratio) / 2
-        } else if (!isX && ratio === xRatio && field === 'top') {
+        } else if (!isHorizontal && ratio === horizontalRatio && attr === 'top') {
           value += (this.resizeWrapper.offsetHeight - this.referenceHeight * ratio) / 2
         }
       }
@@ -110,98 +110,78 @@ export default baseMixins.extend({
         },
       })
     },
-    genElement (item, index, disabled = false) {
-      const fields = [
-        'class', 'style', 'directives', 'staticClass', 'on', 'nativeOn',
-        'attrs', 'props', 'domProps', 'scopedSlots', 'staticStyle',
-        'hook', 'transition', 'slot', 'key', 'ref', 'show', 'keepAlive'
-      ]
+    handleItem (item, index, disabled = false) {
+      item.props = item.props || {}
+      item.props.tag = item.tag
 
-      const excludedField = [
-        'tag', 'children'
-      ]
+      item.index = index
+      item.appear = this.appear
 
-      let data = {
-        attrs: {},
-        props: {
-          tag: item.tag,
-          index,
-          appear: this.appear,
-        },
-      }
+      if (this.absolute) item.absolute = true
+      if (this.fixed) item.fixed = true
 
-      if (this.absolute) data.props.absolute = true
-      if (this.fixed) data.props.fixed = true
+      const convertAspectRatioAttrs = this.convertAspectRatioAttrs || CONVERT_ASPECT_RATIO_ATTRS
 
-      Object.keys(item).forEach(key => {
-        if (fields.includes(key)) {
-          data[key] = item[key]
-        } else if (!excludedField.includes(key)) {
-          data.attrs[key] = item[key]
-        }
+      convertAspectRatioAttrs.forEach((attrs, _index) => {
+        attrs.forEach(attr => {
+          if (item[attr] !== undefined) {
+            item[attr] = this.convertAspectRatio(item[attr], _index % 2 === 0, attr)
+          }
+        })
       })
 
-      this.xFields.forEach(key => {
-        if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertXY(data.attrs[key], true, key)
+      if (!disabled) {
+        if (this.lazy) {
+          if (this.internalValue[index].hide) {
+            item.props.tag = 'div'
+            delete item.class
+            delete item.style
+            return item
+          }
+
+          item.directives = item.directives || []
+          item.directives.push({
+            name: 'intersect',
+            value: entries => {
+              this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
+              this.$emit('intersect', {
+                index,
+                isIntersecting: entries[0].isIntersecting
+              })
+            },
+          })
         }
-      })
 
-      this.yFields.forEach(key => {
-        if (data.attrs[key] !== undefined) {
-          data.attrs[key] = this.convertXY(data.attrs[key], false, key)
+        if (this.editable) {
+          item.on = item.on || {}
+          item.on['size-booted'] = val => Object.keys(val).forEach(name => {
+            this.$set(this.internalValue[index], name, val[name])
+          })
+          item.on['position-booted'] = val => Object.keys(val).forEach(name => {
+            this.$set(this.internalValue[index], name, val[name])
+          })
+          item.on['click'] = event => {
+            this.selectedIndex = index
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          item.on['mouseenter'] = () => this.hoverIndex = index
+          item.on['mouseleave'] = () => this.hoverIndex = null
         }
-      })
-
-      let children = item.children
-
-      if (Array.isArray(children)) {
-        children = children.map((x, i) => this.genElement(x, i, true))
       }
 
-      data.directives = data.directives || []
-
-      if (!disabled && this.lazy) {
-        data.directives.push({
-          name: 'intersect',
-          value: entries => {
-            this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
-            this.$emit('intersect', {
-              index,
-              isIntersecting: entries[0].isIntersecting
-            })
-          },
-        })
+      return {
+        ...item,
+        tag: VCanvasElement,
+        children: Array.isArray(item.children)
+          ? item.children.map((_item, _index) => this.handleItem(_item, _index, true))
+          : item.children
       }
-
-      if (!disabled && this.lazy && this.internalValue[index].hide) {
-        data.props.tag = 'div'
-        delete data.class
-        delete data.style
-        return this.$createElement(VCanvasElement, data)
-      }
-
-      if (this.editable && !disabled) {
-        data.on = data.on || {}
-        data.on['size-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.internalValue[index], name, val[name])
-        })
-        data.on['position-booted'] = val => Object.keys(val).forEach(name => {
-          this.$set(this.internalValue[index], name, val[name])
-        })
-        data.on['click'] = event => {
-          this.selectedIndex = index
-          event.preventDefault()
-          event.stopPropagation()
-        }
-        data.on['mouseenter'] = () => this.hoverIndex = index
-        data.on['mouseleave'] = () => this.hoverIndex = null
-      }
-
-      return this.$createElement(VCanvasElement, data, children)
     },
     genElements () {
-      return this.value.map((x, i) => this.genElement(x, i, false))
+      return this.value
+                 .map((item, index) => this.handleItem(item, index, false))
+                 .map(object => this.createElementByObject(object))
     },
   },
 

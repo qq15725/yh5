@@ -50,6 +50,14 @@ export default baseMixins.extend({
     referenceWidth: Number,
     referenceHeight: Number,
     background: String,
+    backgroundPosition: {
+      type: String,
+      default: 'center center'
+    },
+    backgroundSize: {
+      type: String,
+      default: '100%'
+    },
     hideElements: Boolean,
     convertAspectRatioAttrs: {
       type: [Array, Boolean],
@@ -106,7 +114,9 @@ export default baseMixins.extend({
       return this.$createElement('div', {
         staticClass: 'v-canvas__background',
         style: {
-          backgroundImage: `url(${this.background})`
+          backgroundImage: `url(${this.background})`,
+          backgroundPosition: this.backgroundPosition,
+          backgroundSize: this.backgroundSize,
         },
       })
     },

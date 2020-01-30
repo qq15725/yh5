@@ -100,21 +100,28 @@ export default baseMixins.extend({
       }
     },
     genContent () {
-      return this.value.map(({ background, on, style, class: _class, ...attrs }, index) => {
+      return this.value.map((item, index) => {
+        const { background, backgroundSize, backgroundPosition, on, style, class: _class, ...attrs } = item
+
+        const props = {
+          appear: true,
+          absolute: true,
+          referenceWidth: this.referenceWidth,
+          referenceHeight: this.referenceHeight,
+          lazy: this.lazy,
+          background,
+          hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
+        }
+
+        if (backgroundSize) props.backgroundSize = backgroundSize
+        if (backgroundPosition) props.backgroundPosition = backgroundPosition
+
         return this.$createElement(VSwiperSlide, [
           this.$createElement(VCanvas, {
             class: _class,
             style,
             attrs,
-            props: {
-              appear: true,
-              absolute: true,
-              referenceWidth: this.referenceWidth,
-              referenceHeight: this.referenceHeight,
-              background,
-              lazy: this.lazy,
-              hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
-            },
+            props,
             on,
           })
         ])

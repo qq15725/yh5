@@ -5,6 +5,7 @@
         dark
         :width="Math.max(150, left)"
         style="transition: none;"
+        permanent
       >
         <v-list dense nav class="py-0">
           <v-list-item two-line>

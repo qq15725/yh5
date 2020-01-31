@@ -61,8 +61,10 @@ export default baseMixins.extend({
       value = this.snapToGrid(value)
       value = this.handleEdge(value)
       this.internalValue = value
-      event.preventDefault()
-      event.stopPropagation()
+      if (event instanceof MouseEvent) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
   },
 

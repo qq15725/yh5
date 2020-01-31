@@ -17,6 +17,7 @@
   "devDependencies": {
     "sass": "^1.22.10",
     "sass-loader": "^7.3.1",
-    "vuepress": "^1.2.0"
+    "vuepress": "^1.2.0",
+    "yh5-psd-loader": "^0.0.26"
   }
 }

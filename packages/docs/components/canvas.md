@@ -1,4 +1,8 @@
-### 使用
+## 画布
+
+`v-canvas` 组件赋予你使用JSON编排组件的能力。
+
+## 用例
 
 <v-code-card url="/components/examples/canvas/usage.vue">
 
@@ -119,6 +123,63 @@
       },
       onClick () {
         this.selectedIndex = null
+      }
+    }
+  }
+</script>
+```  
+
+</div>
+</v-code-card>
+
+## 示例
+
+### 通过PSD文件渲染画布
+
+借助 yh5-psd-loader 解析PSD文件渲染画布
+
+```bash
+npm install --save-dev yh5-psd-loader
+```
+
+```javascript
+config.module.rule('psd')
+             .test(/\.psd$/)
+             .use('yh5-psd-loader')
+             .loader(require.resolve('yh5-psd-loader'))
+```
+
+<v-code-card url="/components/examples/canvas/psd.vue">
+
+<examples-canvas-psd></examples-canvas-psd>
+
+<div slot="template">
+
+```html
+<template>
+  <v-canvas
+    editable
+    parent
+    absolute
+    v-bind="canvas"
+    @input="val => canvas.value = val"
+  >
+  </v-canvas>
+</template>
+```  
+  
+</div>
+
+<div slot="script">
+
+```html
+<script>
+  import canvas from '../../../assets/demo.psd'
+
+  export default {
+    data () {
+      return {
+        canvas
       }
     }
   }

@@ -123,8 +123,10 @@ export default baseMixins.extend({
     },
     onStart (event) {
       this.originalValue = Object.assign({}, this.internalValue)
-      event.preventDefault()
-      event.stopPropagation()
+      if (event instanceof MouseEvent) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     onMove (event) {
       if (!this.originalValue) return
@@ -133,14 +135,18 @@ export default baseMixins.extend({
       value = this.handleEdge(value)
       this.internalValue = value
       this.emitMoveEvent && this.emitMoveEvent()
-      event.preventDefault()
-      event.stopPropagation()
+      if (event instanceof MouseEvent) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     onEnd (event) {
       this.originalValue = null
       this.emitEndEvent && this.emitEndEvent()
-      event.preventDefault()
-      event.stopPropagation()
+      if (event instanceof MouseEvent) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     genListeners () {
       if (this.disabled) return {}

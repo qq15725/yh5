@@ -36,14 +36,26 @@ export function createHandlers (value, options) {
       }
       window.addEventListener('mousemove', mousemove, options)
       window.addEventListener('mouseup', mouseup, options)
+    },
+    touchstart: e => {
+      dragstart(e, wrapper)
+      const mousemove = e => drag(e, wrapper)
+      options = options || false
+      const mouseup = e => {
+        window.removeEventListener('touchmove', mousemove, options)
+        window.removeEventListener('touchend', mouseup, options)
+        dragend(e, wrapper)
+      }
+      window.addEventListener('touchmove', mousemove, options)
+      window.addEventListener('touchend', mouseup, options)
     }
   }
 }
 
 function dragstart (event, wrapper) {
   wrapper.state = 'dragstart'
-  wrapper.dragstartX = event.clientX
-  wrapper.dragstartY = event.clientY
+  wrapper.dragstartX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX
+  wrapper.dragstartY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY
 
   wrapper.start && wrapper.start(Object.assign(event, wrapper))
 }
@@ -51,8 +63,8 @@ function dragstart (event, wrapper) {
 function drag (event, wrapper) {
   if (wrapper.state === 'dragend') return
   wrapper.state = 'dragging'
-  wrapper.dragX = event.clientX
-  wrapper.dragY = event.clientY
+  wrapper.dragX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX
+  wrapper.dragY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY
   wrapper.dragOffsetX = wrapper.dragX - wrapper.dragstartX
   wrapper.dragOffsetY = wrapper.dragY - wrapper.dragstartY
 
@@ -61,8 +73,8 @@ function drag (event, wrapper) {
 
 function dragend (event, wrapper) {
   wrapper.state = 'dragend'
-  wrapper.dragendX = event.clientX
-  wrapper.dragendY = event.clientY
+  wrapper.dragendX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX
+  wrapper.dragendY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY
   wrapper.dragOffsetX = wrapper.dragendX - wrapper.dragstartX
   wrapper.dragOffsetY = wrapper.dragendY - wrapper.dragstartY
 

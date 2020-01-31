@@ -1,0 +1,30 @@
+{
+  "name": "yh5-psd-loader",
+  "description": "yh5-psd-loader",
+  "version": "0.0.26",
+  "author": {
+    "name": "weng",
+    "email": "157215725@qq.com"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --config example/webpack.config.js --inline --hot"
+  },
+  "keywords": [
+    "yh5-psd-loader",
+    "psd-loader"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qq15725/yh5.git",
+    "directory": "packages/yh5-psd-loader"
+  },
+  "dependencies": {
+    "psd.js": "^3.3.5"
+  },
+  "devDependencies": {
+    "webpack": "^4.1.0",
+    "webpack-dev-server": "^3.1.1"
+  }
+}

@@ -77,5 +77,10 @@ module.exports = {
   },
   chainWebpack (config) {
     config.resolve.alias.set('vue', 'vue/dist/vue.common.js')
+
+    config.module.rule('psd')
+                 .test(/\.psd$/)
+                 .use('yh5-psd-loader')
+                 .loader(require.resolve('yh5-psd-loader'))
   }
 }

@@ -102,10 +102,12 @@ export default baseMixins.extend({
         const verticalRatio = this.resizeWrapper.offsetHeight / this.referenceHeight
         const ratio = Math.min(horizontalRatio, verticalRatio)
         value *= ratio
-        if (isHorizontal && ratio === verticalRatio && attr === 'left') {
-          value += (this.resizeWrapper.offsetWidth - this.referenceWidth * ratio) / 2
-        } else if (!isHorizontal && ratio === horizontalRatio && attr === 'top') {
-          value += (this.resizeWrapper.offsetHeight - this.referenceHeight * ratio) / 2
+        if (horizontalRatio !== verticalRatio) {
+          if (isHorizontal && ratio === verticalRatio && attr === 'left') {
+            value += (this.resizeWrapper.offsetWidth - this.referenceWidth * ratio) / 2
+          } else if (!isHorizontal && ratio === horizontalRatio && attr === 'top') {
+            value += (this.resizeWrapper.offsetHeight - this.referenceHeight * ratio) / 2
+          }
         }
       }
       return value
@@ -120,7 +122,8 @@ export default baseMixins.extend({
         },
       })
     },
-    handleItem (item, index, disabled = false) {
+    handleItem (obj, index, disabled = false) {
+      let item = { ...obj }
       item.props = item.props || {}
       item.props.tag = item.tag
 

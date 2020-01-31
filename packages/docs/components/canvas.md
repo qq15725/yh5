@@ -157,14 +157,20 @@ config.module.rule('psd')
 
 ```html
 <template>
-  <v-canvas
-    editable
-    parent
-    absolute
-    v-bind="canvas"
-    @input="val => canvas.value = val"
+  <v-card
+    color="#191c20"
+    tile
   >
-  </v-canvas>
+    <v-canvas
+      editable
+      parent
+      absolute
+      class="mx-auto white"
+      v-bind="canvas"
+      @input="val => canvas.value = val"
+    >
+    </v-canvas>
+  </v-card>
 </template>
 ```  
   

@@ -8,8 +8,11 @@
       parent
       absolute
       class="mx-auto white"
-      v-bind="canvas"
-      @input="val => canvas.value = val"
+      :width="375"
+      :height="667"
+      :reference-width="canvasWidth"
+      :reference-height="canvasHeight"
+      :value="data"
     >
     </v-canvas>
   </v-card>
@@ -21,7 +24,9 @@
   export default {
     data () {
       return {
-        canvas
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        data: canvas.children
       }
     }
   }

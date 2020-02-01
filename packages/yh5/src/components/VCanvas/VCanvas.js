@@ -2,7 +2,6 @@ import './VCanvas.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
-import { isNumber } from '../../util/helpers'
 
 // Components
 import VSketch from '../VSketch'
@@ -14,12 +13,6 @@ import CreateElementByObject from '../../mixins/create-element-by-object'
 // Directives
 import resize from '../../directives/resize'
 import intersect from '../../directives/intersect'
-
-// Default values
-export const CONVERT_ASPECT_RATIO_ATTRS = [
-  ['left', 'right', 'width', 'maxWidth', 'minWidth'],
-  ['top', 'bottom', 'height', 'maxHeight', 'minHeight'],
-]
 
 const baseMixins = mixins(
   VSketch,
@@ -47,8 +40,6 @@ export default baseMixins.extend({
     absolute: Boolean,
     fixed: Boolean,
     parent: Boolean,
-    referenceWidth: Number,
-    referenceHeight: Number,
     background: String,
     backgroundPosition: {
       type: String,
@@ -59,19 +50,6 @@ export default baseMixins.extend({
       default: '100%'
     },
     hideElements: Boolean,
-    convertAspectRatioAttrs: {
-      type: [Array, Boolean],
-      default: () => CONVERT_ASPECT_RATIO_ATTRS
-    }
-  },
-
-  data () {
-    return {
-      resizeWrapper: {
-        offsetWidth: null,
-        offsetHeight: null,
-      },
-    }
   },
 
   computed: {
@@ -89,29 +67,6 @@ export default baseMixins.extend({
   },
 
   methods: {
-    convertAspectRatio (value, isHorizontal, attr) {
-      if (
-        isHorizontal !== null
-        && isNumber(value)
-        && this.resizeWrapper.offsetWidth
-        && this.resizeWrapper.offsetHeight
-        && this.referenceWidth
-        && this.referenceHeight
-      ) {
-        const horizontalRatio = this.resizeWrapper.offsetWidth / this.referenceWidth
-        const verticalRatio = this.resizeWrapper.offsetHeight / this.referenceHeight
-        const ratio = Math.min(horizontalRatio, verticalRatio)
-        value *= ratio
-        if (horizontalRatio !== verticalRatio) {
-          if (isHorizontal && ratio === verticalRatio && attr === 'left') {
-            value += (this.resizeWrapper.offsetWidth - this.referenceWidth * ratio) / 2
-          } else if (!isHorizontal && ratio === horizontalRatio && attr === 'top') {
-            value += (this.resizeWrapper.offsetHeight - this.referenceHeight * ratio) / 2
-          }
-        }
-      }
-      return value
-    },
     genBackground () {
       return this.$createElement('div', {
         staticClass: 'v-canvas__background',
@@ -135,10 +90,10 @@ export default baseMixins.extend({
 
       const convertAspectRatioAttrs = this.convertAspectRatioAttrs || CONVERT_ASPECT_RATIO_ATTRS
 
-      convertAspectRatioAttrs.forEach((attrs, _index) => {
+      convertAspectRatioAttrs.forEach(attrs => {
         attrs.forEach(attr => {
           if (item[attr] !== undefined) {
-            item[attr] = this.convertAspectRatio(item[attr], _index % 2 === 0, attr)
+            item[attr] = this.convertAspectRatio(item[attr], attr)
           }
         })
       })
@@ -168,10 +123,14 @@ export default baseMixins.extend({
         if (this.editable) {
           item.on = item.on || {}
           item.on['size-booted'] = val => Object.keys(val).forEach(name => {
-            this.$set(this.internalValue[index], name, val[name])
+            if (item[name] === undefined) {
+              this.$set(this.internalValue[index], name, val[name])
+            }
           })
           item.on['position-booted'] = val => Object.keys(val).forEach(name => {
-            this.$set(this.internalValue[index], name, val[name])
+            if (item[name] === undefined) {
+              this.$set(this.internalValue[index], name, val[name])
+            }
           })
           item.on['click'] = event => {
             this.selectedIndex = index

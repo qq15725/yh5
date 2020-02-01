@@ -166,8 +166,11 @@ config.module.rule('psd')
       parent
       absolute
       class="mx-auto white"
-      v-bind="canvas"
-      @input="val => canvas.value = val"
+      :width="375"
+      :height="667"
+      :reference-width="canvasWidth"
+      :reference-height="canvasHeight"
+      :value="data"
     >
     </v-canvas>
   </v-card>
@@ -185,7 +188,9 @@ config.module.rule('psd')
   export default {
     data () {
       return {
-        canvas
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        data: canvas.children
       }
     }
   }

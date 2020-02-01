@@ -35,4 +35,8 @@
     margin-top: 16px;
     margin-bottom: 16px;
   }
+
+  .theme-default-content:not(.custom) img {
+    max-width: inherit;
+  }
 </style>

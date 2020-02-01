@@ -3,6 +3,7 @@
     "build": "lerna run build --scope yh5 --stream",
     "docs:serve": "lerna run serve --scope yh5.com --stream",
     "docs:build": "lerna run build --scope yh5.com --stream && NODE_DEBUG=gh-pages gh-pages -d docs",
+    "docs:publish": "NODE_DEBUG=gh-pages gh-pages -d docs",
     "loader:dev": "lerna run dev --scope yh5-psd-loader --stream"
   },
   "devDependencies": {

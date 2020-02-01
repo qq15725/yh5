@@ -4,7 +4,7 @@ import './VSketch.scss'
 // Helpers
 import mixins from '../../util/mixins'
 import { provide as RegistrableProvide } from '../../mixins/registrable'
-import { convertToUnit } from '../../util/helpers'
+import { convertToUnit, isNumber } from '../../util/helpers'
 
 // Mixins
 import Proxyable from '../../mixins/proxyable'
@@ -12,12 +12,16 @@ import Measurable from '../../mixins/measurable'
 
 // Components
 import VRefLine from '../VRefLine'
-import VDraggable from '../VDraggable'
 import VSketchLabel from './VSketchLabel'
 import VSketchElementController from './VSketchElementController'
 
 // Default values
 export const REFLINE_DIRECTIONS = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
+
+export const CONVERT_ASPECT_RATIO_ATTRS = [
+  ['left', 'right', 'width', 'maxWidth', 'minWidth'],
+  ['top', 'bottom', 'height', 'maxHeight', 'minHeight'],
+]
 
 const baseMixins = mixins(
   Measurable,
@@ -44,6 +48,12 @@ export default baseMixins.extend({
       default: () => REFLINE_DIRECTIONS,
       validator: val => new Set(val.filter(h => new Set(REFLINE_DIRECTIONS).has(h))).size === val.length
     },
+    referenceWidth: Number,
+    referenceHeight: Number,
+    convertAspectRatioAttrs: {
+      type: [Array, Boolean],
+      default: () => CONVERT_ASPECT_RATIO_ATTRS
+    }
   },
 
   data () {
@@ -52,6 +62,10 @@ export default baseMixins.extend({
       refLines: [],
       hoverIndex: null,
       selectedIndex: null,
+      resizeWrapper: {
+        offsetWidth: null,
+        offsetHeight: null,
+      },
     }
   },
 
@@ -79,6 +93,24 @@ export default baseMixins.extend({
         this.refLineDirections.filter(type => type.indexOf('h') === -1),
       ]
     },
+    horizontalRatio () {
+      if (this.resizeWrapper.offsetWidth && this.referenceWidth) {
+        return this.resizeWrapper.offsetWidth / this.referenceWidth
+      }
+      return null
+    },
+    verticalRatio () {
+      if (this.resizeWrapper.offsetHeight && this.referenceHeight) {
+        return this.resizeWrapper.offsetHeight / this.referenceHeight
+      }
+      return null
+    },
+    aspectRatio () {
+      if (this.verticalRatio && this.horizontalRatio) {
+        return Math.min(this.verticalRatio, this.horizontalRatio)
+      }
+      return null
+    }
   },
 
   methods: {
@@ -89,6 +121,17 @@ export default baseMixins.extend({
       const found = this.items.find(i => i._uid === item._uid)
       if (!found) return
       this.items = this.items.filter(i => i._uid !== found._uid)
+    },
+    convertAspectRatio (value, attr) {
+      if (isNumber(value) && this.aspectRatio) {
+        value *= this.aspectRatio
+        if (this.aspectRatio === this.verticalRatio && attr === 'left') {
+          value += (this.resizeWrapper.offsetWidth - this.referenceWidth * this.aspectRatio) / 2
+        } else if (this.aspectRatio === this.horizontalRatio && attr === 'top') {
+          value += (this.resizeWrapper.offsetHeight - this.referenceHeight * this.aspectRatio) / 2
+        }
+      }
+      return value
     },
     getRefPointsByValue (value) {
       const getPoint = {
@@ -376,8 +419,8 @@ export default baseMixins.extend({
           point: true,
           outlined: true,
           cursor: true,
-          minWidth: 30,
-          minHeight: 30,
+          minWidth: 5,
+          minHeight: 5,
           parent: this.parent,
         },
         on: {
@@ -387,7 +430,20 @@ export default baseMixins.extend({
           },
           dragging: this.calculateRefData,
           dragstop: this.clearRefData,
-          change: val => Object.keys(val).forEach(name => this.updateSelected(name, val[name]))
+          change: val => Object.keys(val).forEach(name => {
+            if (this.aspectRatio) {
+              let value = val[name]
+              if (this.aspectRatio === this.verticalRatio && name === 'left') {
+                value -= (this.resizeWrapper.offsetWidth - this.referenceWidth * this.aspectRatio) / 2
+              } else if (this.aspectRatio === this.horizontalRatio && name === 'top') {
+                value -= (this.resizeWrapper.offsetHeight - this.referenceHeight * this.aspectRatio) / 2
+              }
+              value = value / this.aspectRatio
+              this.updateSelected(name, value)
+            } else {
+              this.updateSelected(name, val[name])
+            }
+          })
         },
         scopedSlots: {
           default: ({ on, style }) => this.$createElement('div', {

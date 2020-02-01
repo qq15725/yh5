@@ -21,14 +21,8 @@ export default baseMixins.extend({
   props: {
     value: Array,
     options: Object,
-    referenceWidth: {
-      type: Number,
-      default: 375
-    },
-    referenceHeight: {
-      type: Number,
-      default: 667
-    },
+    referenceWidth: Number,
+    referenceHeight: Number,
     loadedSlideIndexes: {
       type: Array,
       default: () => ([0])
@@ -106,6 +100,9 @@ export default baseMixins.extend({
         const props = {
           appear: true,
           absolute: true,
+          width: this.width,
+          height: this.height,
+          referenceWidth: this.referenceWidth,
           referenceWidth: this.referenceWidth,
           referenceHeight: this.referenceHeight,
           lazy: this.lazy,

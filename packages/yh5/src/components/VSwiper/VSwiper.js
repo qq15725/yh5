@@ -8,9 +8,11 @@ import { swiper as VSwiper, swiperSlide as VSwiperSlide } from 'vue-awesome-swip
 
 // Mixins
 import Measurable from '../../mixins/measurable'
+import CreateElementByObject from '../../mixins/create-element-by-object'
 
 const baseMixins = mixins(
-  Measurable
+  Measurable,
+  CreateElementByObject
 )
 
 export default baseMixins.extend({
@@ -94,34 +96,21 @@ export default baseMixins.extend({
       }
     },
     genContent () {
-      return this.value.map((item, index) => {
-        let {
-          class: _class,
-          style,
-          on,
-          ...attrs
-        } = item
-
-        attrs = Object.assign({
-          appear: true,
-          absolute: true,
-          width: this.width,
-          height: this.height,
-          referenceWidth: this.referenceWidth,
-          referenceHeight: this.referenceHeight,
-          lazy: this.lazy,
-          hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
-        }, attrs)
-
-        return this.$createElement(VSwiperSlide, [
-          this.$createElement(VCanvas, {
-            class: _class,
-            style,
-            attrs,
-            on,
-          })
-        ])
-      })
+      return this.value.map((item, index) => this.$createElement(VSwiperSlide, [
+        this.$scopedSlots[`item-${index}`]
+          ? this.$scopedSlots[`item-${index}`]({ show: this.internalIndexes.indexOf(index) > -1 })
+          : this.createElementByObject(Object.assign({
+            tag: VCanvas,
+            appear: true,
+            absolute: true,
+            width: this.width,
+            height: this.height,
+            referenceWidth: this.referenceWidth,
+            referenceHeight: this.referenceHeight,
+            lazy: this.lazy,
+            hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
+          }, item))
+      ]))
     }
   },
 
@@ -166,7 +155,7 @@ export default baseMixins.extend({
       },
     }, [
       this.genContent(),
-      this.$slots.default
+      this.$scopedSlots.default && this.$scopedSlots.default({ indexes: this.internalIndexes })
     ])
   }
 })

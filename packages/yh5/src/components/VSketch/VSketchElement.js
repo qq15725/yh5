@@ -3,7 +3,7 @@ import './VSketchElement.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
-import { convertToUnit, isNumber } from '../../util/helpers'
+import { convertToUnit } from '../../util/helpers'
 
 // Mixins
 import Positionable from '../../mixins/positionable'

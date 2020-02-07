@@ -12,7 +12,6 @@ import CreateElementByObject from '../../mixins/create-element-by-object'
 
 // Directives
 import resize from '../../directives/resize'
-import intersect from '../../directives/intersect'
 
 const baseMixins = mixins(
   VSketch,
@@ -26,7 +25,6 @@ export default baseMixins.extend({
 
   directives: {
     resize,
-    intersect,
   },
 
   props: {
@@ -47,7 +45,7 @@ export default baseMixins.extend({
     },
     backgroundSize: {
       type: String,
-      default: '100%'
+      default: '100% 100%'
     },
     hideElements: Boolean,
   },
@@ -84,42 +82,18 @@ export default baseMixins.extend({
 
       item.index = index
       item.appear = this.appear
+      item.lazy = this.lazy
+
+      if (this.$scopedSlots[`item-${index}`] || this.$scopedSlots[item.name]) {
+        item.scopedSlots = {
+          render: this.$scopedSlots[`item-${index}`] || this.$scopedSlots[item.name]
+        }
+      }
 
       if (this.absolute) item.absolute = true
       if (this.fixed) item.fixed = true
 
-      const convertAspectRatioAttrs = this.convertAspectRatioAttrs || CONVERT_ASPECT_RATIO_ATTRS
-
-      convertAspectRatioAttrs.forEach(attrs => {
-        attrs.forEach(attr => {
-          if (item[attr] !== undefined) {
-            item[attr] = this.convertAspectRatio(item[attr], attr)
-          }
-        })
-      })
-
       if (!disabled) {
-        if (this.lazy) {
-          if (this.internalValue[index].hide) {
-            item.props.tag = 'div'
-            delete item.class
-            delete item.style
-            return item
-          }
-
-          item.directives = item.directives || []
-          item.directives.push({
-            name: 'intersect',
-            value: entries => {
-              this.$set(this.internalValue[index], 'hide', !entries[0].isIntersecting)
-              this.$emit('intersect', {
-                index,
-                isIntersecting: entries[0].isIntersecting
-              })
-            },
-          })
-        }
-
         if (this.editable) {
           item.on = item.on || {}
           item.on['size-booted'] = val => Object.keys(val).forEach(name => {

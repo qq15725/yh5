@@ -3,30 +3,32 @@
     color="#191c20"
     tile
   >
-    <v-canvas
+    <demo-canvas
       editable
-      parent
-      absolute
       class="mx-auto white"
       :width="375"
       :height="667"
-      :reference-width="canvasWidth"
-      :reference-height="canvasHeight"
-      :value="data"
     >
-    </v-canvas>
+      <template #item-0="{ src }">
+        <img :src="src" style="display: block; width: 100%; height: 100%;"/>
+      </template>
+    </demo-canvas>
+
+    <div class="white--text pa-3">{{ items }}</div>
   </v-card>
 </template>
 
 <script>
-  import canvas from '../../../assets/demo.psd'
+  import { default as DemoCanvas, items } from '../../../assets/demo.psd'
 
   export default {
+    components: {
+      DemoCanvas
+    },
+
     data () {
       return {
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height,
-        data: canvas.children
+        items
       }
     }
   }

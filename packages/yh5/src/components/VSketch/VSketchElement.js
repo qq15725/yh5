@@ -3,6 +3,7 @@ import './VSketchElement.scss'
 
 // Helpers
 import mixins from '../../util/mixins'
+import { convertToUnit, isNumber } from '../../util/helpers'
 
 // Mixins
 import Positionable from '../../mixins/positionable'
@@ -57,6 +58,52 @@ export default baseMixins.extend({
         ...this.positionableClasses,
       }
     },
+    internalLeft () {
+      return this.convertToResponsive(this.left, 'left')
+    },
+    internalTop () {
+      return this.convertToResponsive(this.top, 'top')
+    },
+    internalWidth () {
+      return this.convertToResponsive(this.width, 'width')
+    },
+    internalHeight () {
+      return this.convertToResponsive(this.height, 'height')
+    },
+    measurableStyles () {
+      const styles = {}
+
+      const height = convertToUnit(this.internalHeight)
+      const maxHeight = convertToUnit(this.convertToResponsive(this.maxHeight, 'maxHeight'))
+      const minHeight = convertToUnit(this.convertToResponsive(this.minHeight, 'minHeight'))
+      const width = convertToUnit(this.internalWidth)
+      const maxWidth = convertToUnit(this.convertToResponsive(this.maxWidth, 'maxWidth'))
+      const minWidth = convertToUnit(this.convertToResponsive(this.minWidth, 'minWidth'))
+
+      if (height) styles.height = height
+      if (maxHeight) styles.maxHeight = maxHeight
+      if (minHeight) styles.minHeight = minHeight
+      if (width) styles.width = width
+      if (maxWidth) styles.maxWidth = maxWidth
+      if (minWidth) styles.minWidth = minWidth
+
+      return styles
+    },
+    positionableStyles () {
+      const styles = {}
+
+      const top = convertToUnit(this.internalTop)
+      const left = convertToUnit(this.internalLeft)
+      const right = convertToUnit(this.convertToResponsive(this.right, 'right'))
+      const bottom = convertToUnit(this.convertToResponsive(this.bottom, 'bottom'))
+
+      if (top) styles.top = top
+      if (left) styles.left = left
+      if (right) styles.right = right
+      if (bottom) styles.bottom = bottom
+
+      return styles
+    },
     styles () {
       return {
         ...this.animationableStyles,
@@ -66,13 +113,22 @@ export default baseMixins.extend({
     },
     refPoints () {
       return {
-        vt: Number(this.top),
-        vm: Number(this.top) + Number(this.height) / 2,
-        vb: Number(this.top) + Number(this.height),
-        hl: Number(this.left),
-        hm: Number(this.left) + Number(this.width) / 2,
-        hr: Number(this.left) + Number(this.width),
+        vt: Number(this.internalTop),
+        vm: parseInt(Number(this.internalTop) + Number(this.internalHeight) / 2),
+        vb: Number(this.internalTop) + Number(this.internalHeight),
+        hl: Number(this.internalLeft),
+        hm: parseInt(Number(this.internalLeft) + Number(this.internalWidth) / 2),
+        hr: Number(this.internalLeft) + Number(this.internalWidth),
       }
+    },
+  },
+
+  methods: {
+    convertToResponsive (value, attr) {
+      if (!this.sketch) {
+        return value
+      }
+      return this.sketch.convertToResponsive(value, attr)
     },
   },
 

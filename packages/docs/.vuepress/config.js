@@ -80,7 +80,7 @@ module.exports = {
 
     config.module.rule('psd')
                  .test(/\.psd$/)
-                 .use('yh5-psd-loader')
-                 .loader(require.resolve('yh5-psd-loader'))
+                 .use('yh5-loader')
+                 .loader(require.resolve('yh5-loader'))
   }
 }

@@ -18,11 +18,6 @@ import VSketchElementController from './VSketchElementController'
 // Default values
 export const REFLINE_DIRECTIONS = ['vt', 'vm', 'vb', 'hl', 'hm', 'hr']
 
-export const CONVERT_ASPECT_RATIO_ATTRS = [
-  ['left', 'right', 'width', 'maxWidth', 'minWidth'],
-  ['top', 'bottom', 'height', 'maxHeight', 'minHeight'],
-]
-
 const baseMixins = mixins(
   Measurable,
   Proxyable,
@@ -52,7 +47,10 @@ export default baseMixins.extend({
     referenceHeight: Number,
     convertAspectRatioAttrs: {
       type: [Array, Boolean],
-      default: () => CONVERT_ASPECT_RATIO_ATTRS
+      default: () => [
+        'left', 'right', 'width', 'maxWidth', 'minWidth',
+        'top', 'bottom', 'height', 'maxHeight', 'minHeight',
+      ]
     }
   },
 
@@ -122,25 +120,29 @@ export default baseMixins.extend({
       if (!found) return
       this.items = this.items.filter(i => i._uid !== found._uid)
     },
-    convertAspectRatio (value, attr) {
-      if (isNumber(value) && this.aspectRatio) {
-        value *= this.aspectRatio
-        if (this.aspectRatio === this.verticalRatio && attr === 'left') {
-          value += (this.resizeWrapper.offsetWidth - this.referenceWidth * this.aspectRatio) / 2
-        } else if (this.aspectRatio === this.horizontalRatio && attr === 'top') {
-          value += (this.resizeWrapper.offsetHeight - this.referenceHeight * this.aspectRatio) / 2
-        }
+    convertToResponsive (value, attr) {
+      if (!isNumber(value) || !this.aspectRatio) {
+        return value
       }
-      return value
+      if (!this.convertAspectRatioAttrs || !this.convertAspectRatioAttrs.includes(attr)) {
+        return value
+      }
+      value *= this.aspectRatio
+      if (this.aspectRatio === this.verticalRatio && attr === 'left') {
+        value += (this.resizeWrapper.offsetWidth - this.referenceWidth * this.aspectRatio) / 2
+      } else if (this.aspectRatio === this.horizontalRatio && attr === 'top') {
+        value += (this.resizeWrapper.offsetHeight - this.referenceHeight * this.aspectRatio) / 2
+      }
+      return parseInt(value)
     },
     getRefPointsByValue (value) {
       const getPoint = {
-        vt: () => value.top,
-        vm: () => value.top + value.height / 2,
-        vb: () => value.top + value.height,
-        hl: () => value.left,
-        hm: () => value.left + value.width / 2,
-        hr: () => value.left + value.width,
+        vt: () => parseInt(value.top),
+        vm: () => parseInt(value.top + value.height / 2),
+        vb: () => parseInt(value.top + value.height),
+        hl: () => parseInt(value.left),
+        hm: () => parseInt(value.left + value.width / 2),
+        hr: () => parseInt(value.left + value.width),
       }
 
       return this.refLineDirections.reduce((points, key) => {
@@ -155,8 +157,8 @@ export default baseMixins.extend({
       const value = this.selected
       const compare = item.compare
       const points = item.vertical
-        ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
-        : [compare.left, compare.left + compare.width, value.left, value.left + value.width]
+        ? [compare.top, compare.top + compare.height, value.internalTop, value.internalTop + value.internalHeight]
+        : [compare.left, compare.left + compare.width, value.internalLeft, value.internalLeft + value.internalWidth]
       const min = Math.min(...points)
       const max = Math.max(...points)
       if (item.vertical) {
@@ -181,8 +183,8 @@ export default baseMixins.extend({
       const value = this.selected
       const compare = item.compare
       const points = item.vertical
-        ? [compare.top, compare.top + compare.height, value.top, value.top + value.height]
-        : [compare.left, compare.left + compare.width, value.left, value.left + value.width]
+        ? [compare.top, compare.top + compare.height, value.internalTop, value.internalTop + value.internalHeight]
+        : [compare.left, compare.left + compare.width, value.internalLeft, value.internalLeft + value.internalWidth]
       const oriPoints = [].concat(points)
       points.sort((a, b) => a - b)
       let min = points[0]
@@ -204,12 +206,12 @@ export default baseMixins.extend({
       if (![min, max].some(i => ![oriPoints[2], oriPoints[3]].includes(i))) return null
       if (item.vertical) {
         let point = compare.point
-        const distance = compare.point - (value.left + value.width / 2)
+        const distance = compare.point - (value.internalLeft + value.internalWidth / 2)
         if (Math.abs(distance) > this.adsorptionThreshold + 1) {
           if (distance > 0) {
-            point -= value.width / 2
+            point -= value.internalWidth / 2
           } else {
-            point += value.width / 2
+            point += value.internalWidth / 2
           }
         }
         return {
@@ -220,12 +222,12 @@ export default baseMixins.extend({
         }
       } else {
         let point = compare.point
-        const distance = compare.point - (value.top + value.height / 2)
+        const distance = compare.point - (value.internalTop + value.internalHeight / 2)
         if (Math.abs(distance) > this.adsorptionThreshold + 1) {
           if (distance > 0) {
-            point -= value.height / 2
+            point -= value.internalHeight / 2
           } else {
-            point += value.height / 2
+            point += value.internalHeight / 2
           }
         }
         return {
@@ -242,14 +244,14 @@ export default baseMixins.extend({
       if (item.vertical) {
         if (compare.point === distanceLine.left) return null
         let length = compare.point > distanceLine.left
-          ? compare.left - value.left
-          : value.left + value.width - compare.left - compare.width
+          ? compare.left - value.internalLeft
+          : value.internalLeft + value.internalWidth - compare.left - compare.width
         length = length > 0 ? length : 0
         return {
           left: compare.point > distanceLine.left
-            ? value.left
+            ? value.internalLeft
             : compare.left + compare.width,
-          top: value.top > compare.top
+          top: value.internalTop > compare.top
             ? distanceLine.top
             : distanceLine.top + distanceLine.length,
           length,
@@ -258,14 +260,14 @@ export default baseMixins.extend({
       } else {
         if (compare.point === distanceLine.top) return null
         let length = compare.point > distanceLine.top
-          ? compare.top - value.top
-          : value.top + value.height - compare.top - compare.height
+          ? compare.top - value.internalTop
+          : value.internalTop + value.internalHeight - compare.top - compare.height
         length = length > 0 ? length : 0
         return {
           top: compare.point > distanceLine.top
-            ? value.top
+            ? value.internalTop
             : compare.top + compare.height,
-          left: value.left > compare.left
+          left: value.internalLeft > compare.left
             ? distanceLine.left
             : distanceLine.left + distanceLine.length,
           length,
@@ -277,9 +279,7 @@ export default baseMixins.extend({
     calculateRefData (value) {
       const threshold = this.adsorptionThreshold + 1
       const points = this.getRefPointsByValue(value)
-      const items = this.items.filter(item => {
-        return item.index !== this.selectedIndex
-      }).reduce((items, item) => {
+      const items = this.items.filter(item => item.index !== this.selectedIndex).reduce((items, item) => {
         this.refLinesAllDirections.forEach((directions, index) => {
           directions.forEach(compareDirection => {
             directions.forEach(direction => {
@@ -292,10 +292,10 @@ export default baseMixins.extend({
                   direction,
                   point,
                   compare: {
-                    top: item.top,
-                    left: item.left,
-                    height: item.height,
-                    width: item.width,
+                    top: item.internalTop,
+                    left: item.internalLeft,
+                    height: item.internalHeight,
+                    width: item.internalWidth,
                     direction: compareDirection,
                     point: comparePoint,
                   },
@@ -334,10 +334,10 @@ export default baseMixins.extend({
       return this.$createElement('div', {
         staticClass: 'v-sketch__hovered',
         style: {
-          top: convertToUnit(this.hovered.top || 0),
-          left: convertToUnit(this.hovered.left || 0),
-          width: convertToUnit(this.hovered.width || 0),
-          height: convertToUnit(this.hovered.height || 0),
+          top: convertToUnit(this.hovered.internalTop || 0),
+          left: convertToUnit(this.hovered.internalLeft || 0),
+          width: convertToUnit(this.hovered.internalWidth || 0),
+          height: convertToUnit(this.hovered.internalHeight || 0),
         }
       })
     },
@@ -410,10 +410,10 @@ export default baseMixins.extend({
       return this.$createElement(VSketchElementController, {
         props: {
           value: {
-            top: this.selected.top || 0,
-            left: this.selected.left || 0,
-            width: this.selected.width || 10,
-            height: this.selected.height || 10,
+            top: this.selected.internalTop || 0,
+            left: this.selected.internalLeft || 0,
+            width: this.selected.internalWidth || 10,
+            height: this.selected.internalHeight || 10,
           },
           absolute: true,
           point: true,
@@ -439,7 +439,7 @@ export default baseMixins.extend({
                 value -= (this.resizeWrapper.offsetHeight - this.referenceHeight * this.aspectRatio) / 2
               }
               value = value / this.aspectRatio
-              this.updateSelected(name, value)
+              this.updateSelected(name, parseInt(value))
             } else {
               this.updateSelected(name, val[name])
             }

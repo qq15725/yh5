@@ -27,7 +27,7 @@ module.exports = {
         test: /\.psd$/,
         use: [
           {
-            loader: 'yh5-psd-loader'
+            loader: 'yh5-loader'
           }
         ]
       }
@@ -35,7 +35,7 @@ module.exports = {
   },
   resolveLoader: {
     alias: {
-      'yh5-psd-loader': require.resolve('../lib')
+      'yh5-loader': require.resolve('../lib')
     }
   }
 }

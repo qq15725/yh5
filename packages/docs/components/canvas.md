@@ -136,17 +136,17 @@
 
 ### 通过PSD文件渲染画布
 
-借助 yh5-psd-loader 解析PSD文件渲染画布
+借助 yh5-loader 解析PSD文件渲染画布
 
 ```bash
-npm install --save-dev yh5-psd-loader
+npm install --save-dev yh5-loader
 ```
 
 ```javascript
 config.module.rule('psd')
              .test(/\.psd$/)
-             .use('yh5-psd-loader')
-             .loader(require.resolve('yh5-psd-loader'))
+             .use('yh5-loader')
+             .loader(require.resolve('yh5-loader'))
 ```
 
 <v-code-card url="/components/examples/canvas/psd.vue">
@@ -161,18 +161,18 @@ config.module.rule('psd')
     color="#191c20"
     tile
   >
-    <v-canvas
+    <demo-canvas
       editable
-      parent
-      absolute
       class="mx-auto white"
       :width="375"
       :height="667"
-      :reference-width="canvasWidth"
-      :reference-height="canvasHeight"
-      :value="data"
     >
-    </v-canvas>
+      <template #item-0="{ src }">
+        <img :src="src" style="display: block; width: 100%; height: 100%;"/>
+      </template>
+    </demo-canvas>
+
+    <div class="white--text pa-3">{{ items }}</div>
   </v-card>
 </template>
 ```  
@@ -183,14 +183,16 @@ config.module.rule('psd')
 
 ```html
 <script>
-  import canvas from '../../../assets/demo.psd'
+  import { default as DemoCanvas, items } from '../../../assets/demo.psd'
 
   export default {
+    components: {
+      DemoCanvas
+    },
+
     data () {
       return {
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height,
-        data: canvas.children
+        items
       }
     }
   }

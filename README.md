@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://qq15725.github.io/yh5/" target="_blank">
+  <a href="http://yh5js.com" target="_blank">
       <img alt="Yh5 Logo" width="200" src="./logo.svg">
   </a>
 </p>
@@ -8,7 +8,7 @@
   <a href="https://www.npmjs.com/package/yh5" target="_blank">
     <img alt="Version" src="https://img.shields.io/npm/v/yh5.svg">
   </a>
-  <a href="https://qq15725.github.io/yh5/" target="_blank">
+  <a href="http://yh5js.com" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
   <a href="https://github.com/qq15725/yh5/graphs/commit-activity" target="_blank">
@@ -20,16 +20,15 @@
 </p>
 
 > 基于 Vue 2.0 快速搭建中后台（hpaPaaS平台）数据驱动、可视化编辑的组件库
+> 通过 Photoshop 导出 psd 文件，自动生成响应式页面能力
 
-### Webpack 使用
-
-1. 安装:
+### Webpack 安装
 
 ```bash
 npm install --save yh5
 ```
 
-2. 添加至你的vue应用:
+添加至你的vue应用:
 
 ```javascript
 import Vue from 'vue'
@@ -38,9 +37,7 @@ import Yh5 from 'yh5'
 Vue.use(Yh5)
 ```
 
-### CDN 使用
-
-简单使用
+### 使用 CDN
 
 ```html
 <!DOCTYPE html>
@@ -88,10 +85,6 @@ Vue.use(Yh5)
 
 </html>
 ```
-
-### 文档
-
-https://qq15725.github.io/yh5/
 
 ### 参考
 

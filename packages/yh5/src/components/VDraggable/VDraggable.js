@@ -1,3 +1,5 @@
+import './VDraggable.scss'
+
 // Helpers
 import mixins from '../../util/mixins'
 import { convertToUnit } from '../../util/helpers'
@@ -123,10 +125,8 @@ export default baseMixins.extend({
     },
     onStart (event) {
       this.originalValue = Object.assign({}, this.internalValue)
-      if (event instanceof MouseEvent) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
+      event.preventDefault()
+      event.stopPropagation()
     },
     onMove (event) {
       if (!this.originalValue) return
@@ -135,18 +135,14 @@ export default baseMixins.extend({
       value = this.handleEdge(value)
       this.internalValue = value
       this.emitMoveEvent && this.emitMoveEvent()
-      if (event instanceof MouseEvent) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
+      event.preventDefault()
+      event.stopPropagation()
     },
     onEnd (event) {
       this.originalValue = null
       this.emitEndEvent && this.emitEndEvent()
-      if (event instanceof MouseEvent) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
+      event.preventDefault()
+      event.stopPropagation()
     },
     genListeners () {
       if (this.disabled) return {}
@@ -181,6 +177,9 @@ export default baseMixins.extend({
     if (!element || Array.isArray(element) || !element.tag) {
       return element
     }
+
+    element.data = element.data || {}
+    element.data.staticClass = 'v-draggable'
 
     return element
   }

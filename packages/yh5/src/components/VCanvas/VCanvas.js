@@ -35,6 +35,7 @@ export default baseMixins.extend({
     editable: Boolean,
     appear: Boolean,
     lazy: Boolean,
+    lazyOnce: Boolean,
     absolute: Boolean,
     fixed: Boolean,
     parent: Boolean,
@@ -75,7 +76,9 @@ export default baseMixins.extend({
         },
       })
     },
-    handleItem (obj, index, disabled = false) {
+    handleItem (obj, index, isRoot = true) {
+      if (!isRoot) return obj
+
       let item = { ...obj }
       item.props = item.props || {}
       item.props.tag = item.tag
@@ -83,6 +86,7 @@ export default baseMixins.extend({
       item.index = index
       item.appear = this.appear
       item.lazy = this.lazy
+      item.lazyOnce = this.lazyOnce
 
       if (this.$scopedSlots[`item-${index}`] || this.$scopedSlots[item.name]) {
         item.scopedSlots = {
@@ -93,40 +97,38 @@ export default baseMixins.extend({
       if (this.absolute) item.absolute = true
       if (this.fixed) item.fixed = true
 
-      if (!disabled) {
-        if (this.editable) {
-          item.on = item.on || {}
-          item.on['size-booted'] = val => Object.keys(val).forEach(name => {
-            if (item[name] === undefined) {
-              this.$set(this.internalValue[index], name, val[name])
-            }
-          })
-          item.on['position-booted'] = val => Object.keys(val).forEach(name => {
-            if (item[name] === undefined) {
-              this.$set(this.internalValue[index], name, val[name])
-            }
-          })
-          item.on['click'] = event => {
-            this.selectedIndex = index
-            event.preventDefault()
-            event.stopPropagation()
+      if (this.editable) {
+        item.on = item.on || {}
+        item.on['size-booted'] = val => Object.keys(val).forEach(name => {
+          if (item[name] === undefined) {
+            this.$set(this.internalValue[index], name, val[name])
           }
-          item.on['mouseenter'] = () => this.hoverIndex = index
-          item.on['mouseleave'] = () => this.hoverIndex = null
+        })
+        item.on['position-booted'] = val => Object.keys(val).forEach(name => {
+          if (item[name] === undefined) {
+            this.$set(this.internalValue[index], name, val[name])
+          }
+        })
+        item.on['click'] = event => {
+          this.selectedIndex = index
+          event.preventDefault()
+          event.stopPropagation()
         }
+        item.on['mouseenter'] = () => this.hoverIndex = index
+        item.on['mouseleave'] = () => this.hoverIndex = null
       }
 
       return {
         ...item,
         tag: VCanvasElement,
         children: Array.isArray(item.children)
-          ? item.children.map((_item, _index) => this.handleItem(_item, _index, true))
+          ? item.children.map((_item, _index) => this.handleItem(_item, _index, false))
           : item.children
       }
     },
     genElements () {
       return this.value
-                 .map((item, index) => this.handleItem(item, index, false))
+                 .map((item, index) => this.handleItem(item, index, true))
                  .map(object => this.createElementByObject(object))
     },
   },

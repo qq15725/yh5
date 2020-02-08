@@ -13,6 +13,7 @@ export default Vue.extend({
     left: [Number, String],
     right: [Number, String],
     bottom: [Number, String],
+    zIndex: Number,
   },
 
   computed: {
@@ -28,6 +29,7 @@ export default Vue.extend({
       if (left) styles.left = left
       if (right) styles.right = right
       if (bottom) styles.bottom = bottom
+      if (this.zIndex) styles.zIndex = this.zIndex
 
       return styles
     },

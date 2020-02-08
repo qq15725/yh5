@@ -8,7 +8,7 @@ const loaderUtils = require('loader-utils')
 module.exports.genUrl = function (loaderContext, options, context, content) {
   const url = loaderUtils.interpolateName(
     loaderContext,
-    options.name || '[contenthash].png',
+    options.name || 'img/[name].[hash:8].png',
     {
       context,
       content,

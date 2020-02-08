@@ -1,3 +1,5 @@
+import './VCanvasElement.scss'
+
 // Helpers
 import mixins from '../../util/mixins'
 
@@ -18,6 +20,7 @@ export default baseMixins.extend({
 
   props: {
     lazy: Boolean,
+    lazyOnce: Boolean,
   },
 
   data () {
@@ -38,10 +41,14 @@ export default baseMixins.extend({
       }
     },
     directives () {
-      if (this.lazy) {
+      if (this.lazy || this.lazyOnce) {
         return [{
           name: 'intersect',
-          value: entries => this.show = entries[0].isIntersecting,
+          value: (entries, observer, isIntersecting) => {
+            console.log(isIntersecting)
+            if (this.show && this.lazyOnce) return
+            this.show = isIntersecting
+          },
         }]
       }
       return []
@@ -49,37 +56,28 @@ export default baseMixins.extend({
   },
 
   render (h) {
-    let element
+    let children = []
 
-    if (this.lazy && !this.show) {
-      element = h('div', {
-        class: this.classes,
-        style: this.styles,
-        directives: this.directives,
-      })
-    } else if (this.$scopedSlots && this.$scopedSlots.render) {
-      element = this.$scopedSlots.render(this.$attrs)
-      if (Array.isArray(element) && element.length === 1) {
-        element = element[0]
+    if (!this.lazy || this.show) {
+      if (this.$scopedSlots && this.$scopedSlots.render) {
+        children = this.$scopedSlots.render({
+          ...this.$attrs,
+          on: this.$listeners
+        })
+      } else {
+        children = h(this.tag, {
+          attrs: this.$attrs,
+          on: this.$listeners,
+        }, this.$slots.default)
       }
-      if (!element || Array.isArray(element) || !element.tag) {
-        return element
-      }
-      element.data = element.data || {}
-      element.data.class = this.classes
-      element.data.style = this.styles
-      element.data.directives = this.directives
-      element.data.on = this.$listeners
-    } else {
-      element = h(this.tag, {
-        attrs: this.$attrs,
-        class: this.classes,
-        style: this.styles,
-        on: this.$listeners,
-        directives: this.directives,
-      }, this.$slots.default)
     }
 
-    return this.genTransition(element)
+    return this.genTransition(h('div', {
+      class: this.classes,
+      style: this.styles,
+      directives: this.directives,
+    }, [
+      children
+    ]))
   }
 })

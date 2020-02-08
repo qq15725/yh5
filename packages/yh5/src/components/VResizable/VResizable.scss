@@ -1,6 +1,7 @@
 .v-resizable {
   position: relative;
   box-sizing: border-box;
+  touch-action: none;
 
   &__wrapper {
     position: relative;
@@ -31,6 +32,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: none;
 
     &--hide {
       opacity: 0;

@@ -20,7 +20,7 @@ module.exports.genItems = function (items) {
 
 module.exports.genCode = function (importName, importWidth, importHeight, importItems) {
   return `
-  import VCanvas from 'yh5/src/components/VCanvas'
+  import VCanvas from 'yh5/lib/components/VCanvas'
   ${importName}
   ${importWidth}
   ${importHeight}

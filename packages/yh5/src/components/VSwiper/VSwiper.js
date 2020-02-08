@@ -31,6 +31,7 @@ export default baseMixins.extend({
     },
     disableSlideReload: Boolean,
     lazy: Boolean,
+    lazyOnce: Boolean,
   },
 
   data () {
@@ -77,7 +78,7 @@ export default baseMixins.extend({
       } else {
         index = this.swiper.realIndex + 1
       }
-      if (index >= 0 && index < this.value.length && this.internalIndexes.indexOf(index) === -1) {
+      if (index >= 0 && index < this.swiper.slides.length && this.internalIndexes.indexOf(index) === -1) {
         if (this.disableSlideReload) {
           this.internalIndexes.push(index)
         } else {
@@ -108,7 +109,8 @@ export default baseMixins.extend({
             referenceWidth: this.referenceWidth,
             referenceHeight: this.referenceHeight,
             lazy: this.lazy,
-            hideElements: !this.lazy && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
+            lazyOnce: this.lazyOnce,
+            hideElements: !this.lazy && !this.lazyOnce && !this.isLoop && this.internalIndexes.indexOf(index) === -1,
           }, item))
       ]))
     }
@@ -154,8 +156,8 @@ export default baseMixins.extend({
         pagination: this.$scopedSlots.pagination,
       },
     }, [
-      this.genContent(),
-      this.$scopedSlots.default && this.$scopedSlots.default({ indexes: this.internalIndexes })
+      Array.isArray(this.value) && this.genContent(),
+      this.$scopedSlots.default && this.$scopedSlots.default({ slides: this.internalIndexes })
     ])
   }
 })

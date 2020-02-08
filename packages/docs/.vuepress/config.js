@@ -1,6 +1,6 @@
 module.exports = {
   title: 'Yh5',
-  base: '/yh5/',
+  base: '/',
   description: '基于 Vue 2.0 快速搭建中后台（hpaPaaS平台）数据驱动、可视化编辑的组件库',
   dest: '../../docs',
   head: [

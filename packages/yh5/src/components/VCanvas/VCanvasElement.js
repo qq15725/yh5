@@ -45,7 +45,6 @@ export default baseMixins.extend({
         return [{
           name: 'intersect',
           value: (entries, observer, isIntersecting) => {
-            console.log(isIntersecting)
             if (this.show && this.lazyOnce) return
             this.show = isIntersecting
           },

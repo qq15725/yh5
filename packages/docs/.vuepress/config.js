@@ -20,6 +20,23 @@ module.exports = {
       rel: 'shortcut icon',
       href: '/logo.ico'
     }],
+    // meta
+    ['meta', {
+      name: 'robots',
+      content: 'all'
+    }],
+    ['meta', {
+      name: 'author',
+      content: 'weng'
+    }],
+    ['meta', {
+      name: 'keywords',
+      content: 'yh5, yh5js, vue, vue h5, vue psd'
+    }],
+    ['meta', {
+      name: 'apple-mobile-web-app-capable',
+      content: 'yes'
+    }]
   ],
   themeConfig: {
     nav: [

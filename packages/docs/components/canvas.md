@@ -16,7 +16,6 @@
     <v-row no-gutters>
       <v-switch v-model="parent" label="parent" class="mx-2"></v-switch>
       <v-switch v-model="editable" label="editable" class="mx-2"></v-switch>
-      <v-switch v-model="resizable" label="resizable" class="mx-2"></v-switch>
       <v-switch v-model="appear" label="appear" class="mx-2"></v-switch>
     </v-row>
 
@@ -25,27 +24,22 @@
     </v-row>
 
     <v-card
-      class="pa-10"
+      class="pa-md-10"
       color="#191c20"
       tile
     >
-      <div
-        @click="onClick"
+      <v-canvas
+        v-model="data"
+        :width="375"
+        :height="667"
+        max-width="100%"
+        max-height="100%"
+        :editable="editable"
+        :parent="parent"
+        absolute
+        class="mx-auto white"
       >
-        <v-canvas
-          v-model="data"
-          :selected-index.sync="selectedIndex"
-          :width="size.width"
-          :height="size.height"
-          @size-change="val => size = val"
-          :editable="editable"
-          :resizable="resizable"
-          :parent="parent"
-          absolute
-          class="mx-auto white"
-        >
-        </v-canvas>
-      </div>
+      </v-canvas>
     </v-card>
   </div>
 </template>
@@ -60,15 +54,9 @@
   export default {
     data () {
       return {
-        size: {
-          width: 375,
-          height: 667,
-        },
         parent: false,
         editable: true,
-        resizable: true,
         appear: false,
-        selectedIndex: null,
         data: [
           {
             tag: 'v-card',
@@ -121,9 +109,6 @@
           placeholder: '请输入详细信息',
         })
       },
-      onClick () {
-        this.selectedIndex = null
-      }
     }
   }
 </script>
@@ -132,22 +117,35 @@
 </div>
 </v-code-card>
 
+## Props
+
+| 参数 | 类型 | 默认值 |
+| ---- | ---- | ---- |
+| width | number/string | - |
+| height | number/string | - |
+| editable | boolean | - |
+| lazy | boolean | - |
+| lazy-once | boolean | - |
+| absolute | boolean | - |
+| fixed | boolean | - |
+| parent | boolean | - |
+| background | string | - |
+| background-position | string | center center |
+| background-size | string | 100% 100% |
+| value | array | - |
+
+## Slots
+
+| name | 说明 |
+| ---- | ---- |
+| item-${index} | - |
+| ${item.name} | - |
+
 ## 示例
 
 ### 通过PSD文件渲染画布
 
-借助 yh5-loader 解析PSD文件渲染画布
-
-```bash
-npm install --save-dev yh5-loader
-```
-
-```javascript
-config.module.rule('psd')
-             .test(/\.psd$/)
-             .use('yh5-loader')
-             .loader(require.resolve('yh5-loader'))
-```
+借助 [yh5-loader](/loader/) 解析PSD文件渲染画布
 
 <v-code-card url="/components/examples/canvas/psd.vue">
 
@@ -166,13 +164,13 @@ config.module.rule('psd')
       class="mx-auto white"
       :width="375"
       :height="667"
+      max-width="100%"
+      max-height="100%"
     >
       <template #item-0="{ src }">
         <img :src="src" style="display: block; width: 100%; height: 100%;"/>
       </template>
     </demo-canvas>
-
-    <div class="white--text pa-3">{{ items }}</div>
   </v-card>
 </template>
 ```  
@@ -183,17 +181,11 @@ config.module.rule('psd')
 
 ```html
 <script>
-  import { default as DemoCanvas, items } from '../../../assets/demo.psd'
+  import DemoCanvas from '../../../assets/demo.psd'
 
   export default {
     components: {
       DemoCanvas
-    },
-
-    data () {
-      return {
-        items
-      }
     }
   }
 </script>

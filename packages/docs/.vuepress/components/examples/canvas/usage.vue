@@ -11,7 +11,7 @@
     </v-row>
 
     <v-card
-      class="pa-10"
+      class="pa-md-10"
       color="#191c20"
       tile
     >
@@ -19,6 +19,8 @@
         v-model="data"
         :width="375"
         :height="667"
+        max-width="100%"
+        max-height="100%"
         :editable="editable"
         :parent="parent"
         absolute

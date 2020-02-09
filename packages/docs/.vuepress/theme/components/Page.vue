@@ -1,22 +1,28 @@
 <template>
   <v-app>
-    <parent-layout/>
+    <ParentPage :sidebarItems="sidebarItems"></ParentPage>
   </v-app>
 </template>
 
 <script>
-  import ParentLayout from '@parent-theme/layouts/Layout.vue'
+  import ParentPage from '@parent-theme/components/Page.vue'
 
   export default {
     components: {
-      ParentLayout
-    }
+      ParentPage,
+    },
+    props: ['sidebarItems']
   }
 </script>
 
 <style>
+  .v-application {
+    background: white !important;
+  }
+
   .v-application code {
     box-shadow: none;
+    white-space: inherit;
   }
 
   .v-application code:after, .v-application code:before, .v-application kbd:after, .v-application kbd:before {

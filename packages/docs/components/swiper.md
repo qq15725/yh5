@@ -15,6 +15,8 @@
     :value="data"
     :width="375"
     :height="674"
+    max-width="100%"
+    max-height="100%"
     :reference-width="375"
     :reference-height="674"
     ref="VSwiper"
@@ -103,11 +105,15 @@
 <script>
   // 动画
   import 'animate.css'
-  import 'swiper/dist/css/swiper.css'
 
+  import 'swiper/dist/css/swiper.css'
+  import { VSwiper } from 'yh5/lib/components'
   import VSwipersForm from './form'
 
   export default {
+    components: {
+      VSwiper,
+    },
     data () {
       return {
         paused: false,
@@ -120,6 +126,8 @@
         data: [
           {
             background: require('../../../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
+            width: '100%',
+            height: '100%',
             value: [
               {
                 tag: 'img',
@@ -161,40 +169,22 @@
                 class: 'animated fadeIn slow',
               },
               {
-                tag: 'div',
+                tag: 'img',
+                src: require('../../../assets/FjfaL3kHpTWemywA-XM508a1uGBI.png'),
                 top: 674 / 2 - 32.5 * 1.2,
-                left: 0,
-                width: 375,
+                left: (375 - 92 * 1.2) / 2,
+                width: 92 * 1.2,
                 height: 32.5 * 1.2,
                 class: 'animated delay-1s slideInLeft slow',
-                children: [
-                  {
-                    tag: 'img',
-                    src: require('../../../assets/FjfaL3kHpTWemywA-XM508a1uGBI.png'),
-                    top: 0,
-                    left: (375 - 92 * 1.2) / 2,
-                    width: 92 * 1.2,
-                    height: 32.5 * 1.2,
-                  },
-                ]
               },
               {
-                tag: 'div',
+                tag: 'img',
+                src: require('../../../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
                 top: 674 / 2 + 19 * 1.2,
-                left: 0,
-                width: 375,
+                left: (375 - 205.5 * 1.2) / 2,
+                width: 205.5 * 1.2,
                 height: 19 * 1.2,
                 class: 'animated delay-1s slideInRight slow',
-                children: [
-                  {
-                    tag: 'img',
-                    src: require('../../../assets/FnrHwdQ6NL60p-HpR7tSl7gYKUE6.png'),
-                    top: 0,
-                    left: (375 - 205.5 * 1.2) / 2,
-                    width: 205.5 * 1.2,
-                    height: 19 * 1.2,
-                  },
-                ]
               },
               {
                 tag: 'img',
@@ -238,6 +228,8 @@
           },
           {
             background: require('../../../assets/o_1dr87ok0a1jia16u415aasgh1fsv9.png'),
+            width: '100%',
+            height: '100%',
             value: [
               {
                 tag: 'img',

@@ -33,9 +33,12 @@ npm install --save yh5
 
 ```javascript
 import Vue from 'vue'
-import Yh5 from 'yh5'
+import Yh5 from 'yh5/lib'
+import * as components from 'yh5/lib/components'
 
-Vue.use(Yh5)
+Vue.use(Yh5, {
+  components
+})
 ```
 
 ### 使用 CDN

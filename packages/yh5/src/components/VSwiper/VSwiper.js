@@ -1,4 +1,5 @@
 import './VSwiper.scss'
+
 // Helpers
 import mixins from '../../util/mixins'
 
@@ -12,7 +13,7 @@ import CreateElementByObject from '../../mixins/create-element-by-object'
 
 const baseMixins = mixins(
   Measurable,
-  CreateElementByObject
+  CreateElementByObject,
 )
 
 export default baseMixins.extend({
@@ -21,8 +22,14 @@ export default baseMixins.extend({
   name: 'v-swiper',
 
   props: {
-    value: Array,
-    options: Object,
+    value: {
+      type: Array,
+      default: () => ([])
+    },
+    options: {
+      type: Object,
+      default: () => ({})
+    },
     referenceWidth: Number,
     referenceHeight: Number,
     loadedSlideIndexes: {
@@ -95,6 +102,7 @@ export default baseMixins.extend({
           this.swiper.realIndex
         ]
       }
+      this.swiper && this.$emit('change', this.swiper.realIndex)
     },
     genContent () {
       return this.value.map((item, index) => this.$createElement(VSwiperSlide, [
@@ -129,7 +137,7 @@ export default baseMixins.extend({
       slideDuplicatedNextClass: 'v-swiper__slide--duplicate-next',
       slideDuplicatedPrevClass: 'v-swiper__slide--duplicate-prev',
       containerModifierClass: 'v-swiper--',
-    }, this.options || {})
+    }, this.options)
 
     options.on = {
       touchStart: this.touchStart,
@@ -144,6 +152,14 @@ export default baseMixins.extend({
       staticClass += ' v-swiper--loop'
     }
 
+    let element = null
+
+    if (this.value.length) {
+      element = this.genContent()
+    } else if (this.$scopedSlots.default) {
+      element = this.$scopedSlots.default({ slides: this.internalIndexes })
+    }
+
     return h(VSwiper, {
       ref: 'VSwiper',
       staticClass,
@@ -155,9 +171,6 @@ export default baseMixins.extend({
       scopedSlots: {
         pagination: this.$scopedSlots.pagination,
       },
-    }, [
-      Array.isArray(this.value) && this.genContent(),
-      this.$scopedSlots.default && this.$scopedSlots.default({ slides: this.internalIndexes })
-    ])
+    }, element)
   }
 })

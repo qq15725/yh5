@@ -28,9 +28,7 @@ export default baseMixins.extend({
   name: 'v-sketch-element',
 
   props: {
-    tag: {
-      required: true,
-    },
+    tag: null,
     index: Number,
   },
 
@@ -133,11 +131,23 @@ export default baseMixins.extend({
   },
 
   render (h) {
-    return this.genTransition(h(this.tag, {
-      attrs: this.$attrs,
+    let element = null
+
+    if (this.$scopedSlots.default) {
+      element = this.$scopedSlots.default()
+    }
+
+    if (this.tag) {
+      element = h(this.tag, {
+        attrs: this.$attrs,
+        on: this.$listeners,
+      }, element)
+    }
+
+    return this.genTransition(h('div', {
       class: this.classes,
       style: this.styles,
-      on: this.$listeners,
-    }, this.$slots.default))
+      directives: this.directives,
+    }, element))
   }
 })

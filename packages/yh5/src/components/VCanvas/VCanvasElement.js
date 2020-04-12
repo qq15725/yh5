@@ -38,6 +38,8 @@ export default baseMixins.extend({
       return {
         'v-canvas-element': true,
         ...(VSketchElement.options.computed.classes.call(this)),
+        'v-position--absolute': this.sketch && this.sketch.absolute,
+        'v-position--fixed': this.sketch && this.sketch.fixed,
       }
     },
     directives () {
@@ -55,19 +57,18 @@ export default baseMixins.extend({
   },
 
   render (h) {
-    let children = []
+    let element = null
 
     if (!this.lazy || this.show) {
-      if (this.$scopedSlots && this.$scopedSlots.render) {
-        children = this.$scopedSlots.render({
-          ...this.$attrs,
-          on: this.$listeners
-        })
-      } else {
-        children = h(this.tag, {
+      if (this.$scopedSlots.default) {
+        element = this.$scopedSlots.default()
+      }
+
+      if (this.tag) {
+        element = h(this.tag, {
           attrs: this.$attrs,
           on: this.$listeners,
-        }, this.$slots.default)
+        }, element)
       }
     }
 
@@ -75,8 +76,6 @@ export default baseMixins.extend({
       class: this.classes,
       style: this.styles,
       directives: this.directives,
-    }, [
-      children
-    ]))
+    }, element))
   }
 })

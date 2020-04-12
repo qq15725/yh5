@@ -94,9 +94,6 @@ export default baseMixins.extend({
         }
       }
 
-      if (this.absolute) item.absolute = true
-      if (this.fixed) item.fixed = true
-
       if (this.editable) {
         item.on = item.on || {}
         item.on['size-booted'] = val => Object.keys(val).forEach(name => {
@@ -138,13 +135,20 @@ export default baseMixins.extend({
 
     if (this.background) children.push(this.genBackground())
 
+    let element = null
+
+    if (!this.hideElements) {
+      if (this.value.length) {
+        element = this.genElements()
+      } else if (this.$scopedSlots.default) {
+        element = this.$scopedSlots.default()
+      }
+    }
+
     children.push(
       h('div', {
         staticClass: 'v-canvas__wrapper'
-      }, [
-        !this.hideElements && this.value && this.genElements(),
-        this.$slots.default
-      ])
+      }, element)
     )
 
     if (this.editable) {

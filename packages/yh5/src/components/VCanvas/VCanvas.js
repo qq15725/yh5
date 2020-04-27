@@ -167,8 +167,10 @@ export default baseMixins.extend({
       directives: [{
         name: 'resize',
         value: () => {
-          this.resizeWrapper.offsetWidth = this.$el.offsetWidth
-          this.resizeWrapper.offsetHeight = this.$el.offsetHeight
+          if (!this.resizeWrapper.offsetWidth || !this.resizeWrapper.offsetHeight) {
+            this.resizeWrapper.offsetWidth = this.$el.offsetWidth
+            this.resizeWrapper.offsetHeight = this.$el.offsetHeight
+          }
         },
       }],
       on: {

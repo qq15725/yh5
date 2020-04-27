@@ -76,6 +76,8 @@ export default baseMixins.extend({
       class: this.classes,
       style: this.styles,
       directives: this.directives,
-    }, element))
+    }, [
+      element
+    ]))
   }
 })

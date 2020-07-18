@@ -22,6 +22,7 @@
             :width="37"
             :height="37"
             class="animated fadeIn slow"
+            @after-enter="onAfterEnter"
           >
             <img :src="require('../../../assets/FtU_ut-TVuxydRE_R4MCgw0Ab-RE.png')"/>
           </v-canvas-element>
@@ -222,6 +223,11 @@
           // noSwiping: true,
           // noSwipingSelector: '.v-swiper__slide',
         }
+      }
+    },
+    methods: {
+      onAfterEnter () {
+        console.log('after-enter')
       }
     }
   }

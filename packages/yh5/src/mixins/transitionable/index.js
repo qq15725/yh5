@@ -1,5 +1,11 @@
 import Vue from 'vue'
 
+const TRANSITION_LISTENERS = [
+  'before-appear', 'appear', 'after-appear', 'appear-cancelled',
+  'before-enter', 'enter', 'after-enter', 'enter-cancelled',
+  'before-leave', 'leave', 'after-leave', 'leave-cancelled',
+]
+
 export default Vue.extend({
   name: 'transitionable',
 
@@ -7,11 +13,11 @@ export default Vue.extend({
     appear: Boolean,
     css: {
       type: Boolean,
-      default: true
+      default: true,
     },
     transition: {
       type: [String, Boolean],
-      default: false
+      default: false,
     },
     type: String,
     mode: String,
@@ -29,16 +35,24 @@ export default Vue.extend({
 
   methods: {
     genTransition (item) {
-      if (this.transition) {
+      let on = null
+      Object.keys(this.$listeners).forEach(key => {
+        if (TRANSITION_LISTENERS.includes(key)) {
+          on = on || {}
+          on[key] = this.$listeners[key]
+        }
+      })
+
+      if (this.transition || on) {
         const props = {
-          name: this.transition,
           appear: this.appear,
           css: this.css,
-          type: this.type,
-          mode: this.mode,
-          duration: this.duration
         }
 
+        if (this.transition) props.name = this.transition
+        if (this.type) props.type = this.type
+        if (this.mode) props.mode = this.mode
+        if (this.duration) props.duration = this.duration
         if (this.enterClass) props.enterClass = this.enterClass
         if (this.leaveClass) props.leaveClass = this.leaveClass
         if (this.appearClass) props.appearClass = this.appearClass
@@ -49,7 +63,10 @@ export default Vue.extend({
         if (this.leaveActiveClass) props.leaveActiveClass = this.leaveActiveClass
         if (this.appearActiveClass) props.appearActiveClass = this.appearActiveClass
 
-        item = this.$createElement('transition', { props }, [item])
+        item = this.$createElement('transition', {
+          props,
+          on
+        }, [item])
       }
       return item
     }

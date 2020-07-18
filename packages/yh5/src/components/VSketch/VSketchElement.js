@@ -30,6 +30,10 @@ export default baseMixins.extend({
   props: {
     tag: null,
     index: Number,
+    appear: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   created () {

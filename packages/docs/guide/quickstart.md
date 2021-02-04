@@ -51,11 +51,21 @@ module.exports = {
 
 ```javascript
 import Vue from 'vue'
-import Yh5 from 'yh5/lib'
-import * as components from 'yh5/lib/components'
+import Yh5 from 'yh5/lib/framework'
+import {
+  VCanvas,
+  VDraggable,
+  VResizable,
+  VDraggableResizable,
+} from 'yh5/lib/components'
 
 Vue.use(Yh5, {
-  components
+  components: {
+    VCanvas,
+    VDraggable,
+    VResizable,
+    VDraggableResizable,
+  }
 })
 ```
 

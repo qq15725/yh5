@@ -56,7 +56,7 @@ module.exports.genUrl = function (loaderContext, options, context, content) {
 module.exports.streamToBuffer = function (stream) {
   return new Promise((resolve, reject) => {
     let buffers = []
-    stream.on('error', reject)
+    stream.on('error', message => reject(new Error(message)))
     stream.on('data', data => buffers.push(data))
     stream.on('end', () => resolve(Buffer.concat(buffers)))
     stream.pack()

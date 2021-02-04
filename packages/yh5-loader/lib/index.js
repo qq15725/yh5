@@ -1,8 +1,17 @@
 const path = require('path')
 const loaderUtils = require('loader-utils')
 const PSD = require('psd.js')
-const { genCode, genName, genHeight, genWidth, genItems, } = require('./codegen/template')
-const { genUrl, streamToBuffer } = require('./utils')
+const {
+  genCode,
+  genName,
+  genHeight,
+  genWidth,
+  genItems,
+} = require('./codegen/template')
+const {
+  genUrl,
+  streamToBuffer
+} = require('./utils')
 
 module.exports = function (source) {
   const loaderContext = this
@@ -13,6 +22,7 @@ module.exports = function (source) {
     async,
   } = loaderContext
 
+  const callback = async()
   const options = loaderUtils.getOptions(loaderContext) || {}
   const context = options.context || rootContext || process.cwd()
   const filename = path.basename(resourcePath)
@@ -20,18 +30,14 @@ module.exports = function (source) {
   let importName = genName(filename)
   let importWidth = genWidth(0)
   let importHeight = genHeight(0)
-  let importItems = genItems([])
   const psd = new PSD(source)
   if (!psd.parse()) {
-    loaderContext.emitError(new Error(
-      `parse PSD failure`
-    ))
-    return genCode(importName, importWidth, importHeight, importItems)
+    callback(new Error('parse PSD failure'))
+    return
   }
-  const callback = async()
   importWidth = genWidth(psd.header.cols)
   importHeight = genHeight(psd.header.rows)
-  const reduceHandle = (items, item) => {
+  const handle = (items, item) => {
     if (!item.visible()) {
       return items
     }
@@ -39,7 +45,7 @@ module.exports = function (source) {
       const children = item.children()
       if (Array.isArray(children)) {
         items.push(
-          ...children.reduce(reduceHandle, [])
+          ...children.reduce(handle, [])
         )
       }
     } else if (item.type === 'layer') {
@@ -47,20 +53,44 @@ module.exports = function (source) {
     }
     return items
   }
-  const items = psd.tree().children().reduce(reduceHandle, []).reverse().map(async item => {
-    return {
-      tag: 'img',
-      name: item.name,
-      width: item.width,
-      height: item.height,
-      left: item.left,
-      top: item.top,
-      src: genUrl(loaderContext, options, context, await streamToBuffer(item.layer.image.toPng())),
-    }
-  })
-  Promise.all(items)
-         .then(items => callback(null, genCode(importName, importWidth, importHeight, genItems(items))))
-         .catch(callback)
+  Promise.all(
+    psd.tree()
+       .children()
+       .reduce(handle, [])
+       .reverse()
+       .map(async item => {
+         let src
+         try {
+           src = genUrl(
+             loaderContext,
+             options,
+             context,
+             await streamToBuffer(item.layer.image.toPng())
+           )
+         } catch (e) {
+           src = null
+         }
+         return {
+           tag: 'img',
+           name: item.name,
+           width: item.width,
+           height: item.height,
+           left: item.left,
+           top: item.top,
+           src,
+         }
+       })
+  ).then(items => {
+    return callback(
+      null,
+      genCode(
+        importName,
+        importWidth,
+        importHeight,
+        genItems(items)
+      )
+    )
+  }).catch(callback)
 }
 
 module.exports.raw = true

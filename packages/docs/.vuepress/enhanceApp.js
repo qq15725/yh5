@@ -3,7 +3,7 @@ import Vuetify from 'vuetify/lib'
 import zhHans from 'vuetify/es5/locale/zh-Hans'
 import * as VuetifyComponents from 'vuetify/lib/components'
 
-import Yh5 from 'yh5/lib'
+import Yh5 from 'yh5/lib/framework'
 import {
   VCanvas,
   VDraggable,

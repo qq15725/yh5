@@ -21,14 +21,14 @@
     "directory": "packages/yh5-loader"
   },
   "dependencies": {
-    "loader-utils": "^1.1.0",
-    "psd.js": "^3.3.5"
+    "loader-utils": "^1.4.0",
+    "psd.js": "^3.3.17"
   },
   "devDependencies": {
     "file-loader": "3.0.1",
-    "webpack": "^4.1.0",
-    "webpack-dev-server": "^3.1.1",
-    "yh5": "^0.0.35"
+    "webpack": "^4.46.0",
+    "webpack-dev-server": "^3.11.3",
+    "yh5": "workspace:^0.0.35"
   },
   "peerDependencies": {
     "yh5": "^0.0.1"
